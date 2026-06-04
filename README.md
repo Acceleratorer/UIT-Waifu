@@ -149,6 +149,7 @@ Potential supported languages:
 - JavaScript
 - TypeScript
 - SQL
+- NoSQL
 - Bash
 
 ### 4. Document Understanding

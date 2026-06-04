@@ -3,6 +3,8 @@
 <p align="center">
   <img src="https://img.shields.io/badge/AI-Student_Assistant-ff69b4?style=for-the-badge" alt="AI Student Assistant" />
   <img src="https://img.shields.io/badge/University-UIT-blue?style=for-the-badge" alt="UIT" />
+  <img src="https://img.shields.io/badge/Database-PostgreSQL_%2B_pgvector-336791?style=for-the-badge" alt="Database" />
+  <img src="https://img.shields.io/badge/Deploy-waifu.accel.io.vn-black?style=for-the-badge" alt="Deployment" />
   <img src="https://img.shields.io/badge/Status-In_Development-yellow?style=for-the-badge" alt="Status" />
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License" />
 </p>
@@ -19,6 +21,9 @@
   <a href="https://github.com/Acceleratorer/UIT-Waifu">
     <img src="https://img.shields.io/badge/GitHub-UIT--Waifu-black?style=for-the-badge&logo=github" alt="GitHub Repository" />
   </a>
+  <a href="https://waifu.accel.io.vn">
+    <img src="https://img.shields.io/badge/Live_Demo-waifu.accel.io.vn-ff69b4?style=for-the-badge" alt="Live Demo" />
+  </a>
 </p>
 
 ---
@@ -32,10 +37,13 @@
 - [Student Productivity Features](#student-productivity-features)
 - [UIT Knowledge Features](#uit-knowledge-features)
 - [Use Cases](#use-cases)
-- [Tech Stack](#tech-stack)
+- [Recommended Stack](#recommended-stack)
+- [Full Tech Stack Options](#full-tech-stack-options)
+- [Database Strategy](#database-strategy)
 - [System Architecture](#system-architecture)
 - [RAG Pipeline](#rag-pipeline)
 - [Project Structure](#project-structure)
+- [Deployment Plan](#deployment-plan)
 - [Getting Started](#getting-started)
 - [Environment Variables](#environment-variables)
 - [API Design](#api-design)
@@ -43,6 +51,7 @@
 - [Database Design Ideas](#database-design-ideas)
 - [Development Roadmap](#development-roadmap)
 - [Security And Privacy](#security-and-privacy)
+- [Testing Ideas](#testing-ideas)
 - [Contributing](#contributing)
 - [License](#license)
 - [Disclaimer](#disclaimer)
@@ -53,9 +62,15 @@
 
 **UIT Waifu** is an AI-powered student assistant designed for students at the **University of Information Technology**.
 
-The project combines a friendly chatbot experience with practical academic features such as study support, code explanation, document summarization, schedule planning, task organization, and university-related assistance.
+The project combines a friendly chatbot experience with practical academic features such as study support, code explanation, document summarization, schedule planning, task organization, RAG-based document Q&A, and university-related assistance.
 
 UIT Waifu is designed to be more than a normal chatbot. The long-term goal is to build a useful AI companion that can understand student needs, support learning workflows, and help users manage academic life more efficiently.
+
+Production target:
+
+```txt
+https://waifu.accel.io.vn
+```
 
 ---
 
@@ -72,8 +87,9 @@ UIT Waifu aims to become a single assistant that helps students:
 - Search through university-related materials.
 - Manage daily academic productivity.
 - Interact in both Vietnamese and English.
+- Build a personalized student workspace.
 
-The assistant should be friendly and fun, but the main priority is always usefulness, clarity, and real academic value.
+The assistant should be friendly and fun, but the main priority is always usefulness, clarity, privacy, and real academic value.
 
 ---
 
@@ -139,6 +155,7 @@ Supported coding tasks:
 - Explain data structures.
 - Explain SQL queries and triggers.
 - Suggest better project architecture.
+- Review pull requests or code snippets.
 
 Potential supported languages:
 
@@ -154,7 +171,7 @@ Potential supported languages:
 
 ### 4. Document Understanding
 
-UIT Waifu can be extended to process uploaded files such as:
+UIT Waifu can process uploaded files such as:
 
 - PDF lecture notes
 - PowerPoint slides
@@ -176,6 +193,7 @@ Document actions:
 - Translate between Vietnamese and English.
 - Answer questions based on uploaded content.
 - Generate quizzes from lecture files.
+- Search documents semantically using vector embeddings.
 
 ### 5. Personalized Student Workspace
 
@@ -192,6 +210,7 @@ Possible dashboard modules:
 - Exam preparation progress
 - Project milestones
 - User settings
+- AI memory controls
 
 ---
 
@@ -345,9 +364,28 @@ Help me design a RAG pipeline for course documents.
 
 ---
 
-## Tech Stack
+## Recommended Stack
 
-This repository can be implemented using a modern AI web application stack.
+For the first production version, this stack is recommended:
+
+```txt
+Frontend: Next.js + React + TypeScript + Tailwind CSS + ShadCN UI
+Backend MVP: Next.js API Routes
+Backend later: FastAPI microservice
+Main Database: Supabase PostgreSQL
+Vector Database: Supabase pgvector
+Auth: Supabase Auth or NextAuth.js
+Storage: Supabase Storage
+AI Provider: OpenAI API or compatible LLM provider
+Deployment: Vercel
+Production Domain: waifu.accel.io.vn
+```
+
+This stack keeps the project simple for MVP development while still supporting serious AI features like document upload, semantic search, and RAG.
+
+---
+
+## Full Tech Stack Options
 
 ### Frontend
 
@@ -363,6 +401,7 @@ This repository can be implemented using a modern AI web application stack.
 
 ### Backend
 
+- **Next.js API Routes** for MVP backend
 - **FastAPI** for Python-based AI backend
 - **Node.js** or **Express.js** for JavaScript backend services
 - **REST API** for standard client-server communication
@@ -373,6 +412,7 @@ This repository can be implemented using a modern AI web application stack.
 ### AI And LLM
 
 - **OpenAI API** for LLM responses
+- **OpenRouter** for multi-provider LLM routing
 - **Local LLMs** for offline or private deployment experiments
 - **LangChain** for chains, tools, and retrieval workflows
 - **LlamaIndex** for document indexing and RAG
@@ -382,33 +422,34 @@ This repository can be implemented using a modern AI web application stack.
 
 ### Data And Storage
 
-- **PostgreSQL** for relational data
-- **MongoDB** for flexible document data
-- **Supabase** for hosted database and authentication
-- **Firebase** for auth and realtime features
+- **Supabase PostgreSQL** for relational application data
+- **PostgreSQL pgvector** for vector search
+- **Supabase Storage** for uploaded files
 - **Redis** for caching and session data
-- **S3-compatible storage** for uploaded files
+- **S3-compatible storage** for scalable file storage
+- **MongoDB** only if flexible document-first storage is needed later
 
 ### Vector Search
 
+- **Supabase pgvector** for MVP and production simplicity
 - **FAISS** for local vector search
-- **ChromaDB** for lightweight vector storage
+- **ChromaDB** for lightweight local vector storage
 - **Pinecone** for hosted vector database
 - **Weaviate** for semantic search
-- **PostgreSQL pgvector** for vector search inside PostgreSQL
+- **Qdrant** for high-performance vector search
 
 ### Authentication
 
-- **NextAuth.js** for Next.js authentication
 - **Supabase Auth** for managed auth
-- **Firebase Auth** for managed auth
+- **NextAuth.js** for Next.js authentication
+- **Firebase Auth** as another managed option
 - **JWT** for API authentication
 - **OAuth** for external login providers
 
 ### DevOps And Deployment
 
-- **Vercel** for frontend deployment
-- **Railway** for backend and database deployment
+- **Vercel** for frontend and Next.js deployment
+- **Railway** for backend services
 - **Render** for backend services
 - **Docker** for containerization
 - **Docker Compose** for local multi-service development
@@ -420,13 +461,98 @@ This repository can be implemented using a modern AI web application stack.
 
 ---
 
+## Database Strategy
+
+UIT Waifu should use a **hybrid database architecture**.
+
+The best default choice is:
+
+```txt
+Supabase PostgreSQL + pgvector + Supabase Storage
+```
+
+### Primary Database
+
+The primary database should be relational. PostgreSQL is recommended because the application needs reliable structured data.
+
+Store this data in PostgreSQL:
+
+- Users
+- Profiles
+- Conversations
+- Messages
+- Uploaded document metadata
+- Study plans
+- Tasks
+- Courses
+- Notes
+- User settings
+- Feedback
+
+### Vector Database
+
+UIT Waifu should use a vector database for AI memory and Retrieval-Augmented Generation.
+
+Store embeddings for:
+
+- Lecture documents
+- UIT announcements
+- Course materials
+- User notes
+- Document chunks
+- Long-term assistant memory
+- Semantic search results
+
+Recommended vector options:
+
+- Supabase pgvector
+- Pinecone
+- Weaviate
+- Qdrant
+- ChromaDB
+- FAISS
+
+For the MVP, **Supabase PostgreSQL with pgvector** is recommended because it combines relational data, authentication, storage, and vector search in one platform.
+
+### Blockchain Database
+
+A blockchain database is **not recommended as the primary database** for UIT Waifu.
+
+Reasons:
+
+- Chat history and uploaded files require privacy.
+- Student data should be editable and deletable.
+- Vector search requires fast embedding similarity search.
+- Blockchain queries are not ideal for normal app data.
+- Blockchain adds complexity without helping the main AI workflow.
+
+Blockchain can be considered later only as an optional proof layer for:
+
+- Public achievement certificates
+- Tamper-resistant learning milestones
+- Contribution proof
+- Project submission proof
+- Optional badge or credential system
+
+### Recommended Database Decision
+
+```txt
+Core app data: Supabase PostgreSQL
+Semantic search: Supabase pgvector
+File uploads: Supabase Storage
+Caching later: Redis
+Blockchain: optional future proof layer only
+```
+
+---
+
 ## System Architecture
 
 ```txt
 User
  │
  ▼
-Frontend App
+Frontend App on waifu.accel.io.vn
  │
  ├── Chat UI
  ├── Dashboard
@@ -454,10 +580,10 @@ Backend API
  ▼
 Storage Layer
  │
- ├── Relational Database
- ├── Object Storage
- ├── Vector Database
- └── Cache
+ ├── Supabase PostgreSQL
+ ├── Supabase pgvector
+ ├── Supabase Storage
+ └── Redis Cache
 ```
 
 ---
@@ -485,7 +611,7 @@ Chunking
 Embedding Generation
       │
       ▼
-Vector Storage
+Vector Storage in pgvector
       │
       ▼
 Semantic Retrieval
@@ -546,6 +672,7 @@ UIT-Waifu
 │   ├── architecture.md
 │   ├── api.md
 │   ├── database.md
+│   ├── deployment.md
 │   ├── prompts.md
 │   └── roadmap.md
 │
@@ -564,6 +691,67 @@ UIT-Waifu
 ├── README.md
 ├── LICENSE
 └── package.json
+```
+
+---
+
+## Deployment Plan
+
+UIT Waifu is planned to be deployed as a separate AI product under the Accelra ecosystem.
+
+Recommended production URL:
+
+```txt
+https://waifu.accel.io.vn
+```
+
+Alternative route if needed:
+
+```txt
+https://accel.io.vn/uit-waifu
+```
+
+The subdomain approach is preferred because UIT Waifu can grow as an independent product while still staying under the `accel.io.vn` ecosystem.
+
+### Recommended Deployment Architecture
+
+```txt
+Domain: waifu.accel.io.vn
+DNS: CNAME to Vercel
+Frontend: Vercel
+Backend MVP: Next.js API Routes on Vercel
+Backend later: FastAPI on Railway or Render
+Database: Supabase PostgreSQL
+Vector Search: Supabase pgvector
+File Storage: Supabase Storage
+Auth: Supabase Auth or NextAuth.js
+CI/CD: GitHub Actions + Vercel Git integration
+```
+
+### Vercel Setup
+
+1. Import the GitHub repository into Vercel.
+2. Set the project framework to Next.js.
+3. Add environment variables from `.env.local`.
+4. Deploy the project.
+5. Add custom domain:
+
+```txt
+waifu.accel.io.vn
+```
+
+6. Configure DNS from the domain provider:
+
+```txt
+Type: CNAME
+Name: waifu
+Value: cname.vercel-dns.com
+```
+
+After DNS propagation, the application should be available at:
+
+```txt
+https://waifu.accel.io.vn
 ```
 
 ---
@@ -635,10 +823,11 @@ http://localhost:3000
 Create a `.env.local` file in the root directory.
 
 ```env
+NEXT_PUBLIC_APP_URL=https://waifu.accel.io.vn
 OPENAI_API_KEY=your_openai_api_key
 DATABASE_URL=your_database_url
 NEXTAUTH_SECRET=your_nextauth_secret
-NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_URL=https://waifu.accel.io.vn
 ```
 
 For Supabase:
@@ -758,6 +947,7 @@ Possible tables or collections:
 
 ```txt
 users
+profiles
 conversations
 messages
 documents
@@ -784,6 +974,20 @@ users
 users
  └── study_plans
       └── tasks
+```
+
+Example vector table idea:
+
+```sql
+create table document_chunks (
+  id uuid primary key,
+  document_id uuid not null,
+  user_id uuid not null,
+  content text not null,
+  metadata jsonb,
+  embedding vector(1536),
+  created_at timestamp default now()
+);
 ```
 
 ---
@@ -855,6 +1059,13 @@ users
 - [ ] Add Telegram bot
 - [ ] Add multi-agent workflows
 
+### Phase 8: Optional Blockchain Proof Layer
+
+- [ ] Explore learning milestone certificates
+- [ ] Explore project submission proof
+- [ ] Explore public contribution proof
+- [ ] Keep private user data off-chain
+
 ---
 
 ## Development Guidelines
@@ -910,6 +1121,7 @@ Security principles:
 - Use authentication for private data.
 - Apply rate limiting to API routes.
 - Check file size and file type before processing uploads.
+- Keep service role keys server-side only.
 
 Privacy principles:
 
@@ -918,6 +1130,7 @@ Privacy principles:
 - Allow users to delete their data.
 - Be transparent about AI-generated content.
 - Store only the data needed for the product.
+- Keep private academic data off-chain.
 
 Example `.gitignore`:
 
@@ -958,31 +1171,6 @@ Possible tools:
 - React Testing Library
 - Pytest
 - Playwright
-
----
-
-## Deployment Ideas
-
-Simple deployment path:
-
-```txt
-Frontend: Vercel
-Backend: Railway or Render
-Database: Supabase PostgreSQL
-Vector Database: pgvector, ChromaDB, or Pinecone
-File Storage: Supabase Storage or S3-compatible storage
-CI/CD: GitHub Actions
-```
-
-Docker-based deployment:
-
-```txt
-frontend container
-backend container
-database service
-vector database service
-cache service
-```
 
 ---
 
@@ -1078,6 +1266,7 @@ Special thanks to:
 ```txt
 GitHub: https://github.com/Acceleratorer
 Repository: https://github.com/Acceleratorer/UIT-Waifu
+Production URL: https://waifu.accel.io.vn
 ```
 
 ---

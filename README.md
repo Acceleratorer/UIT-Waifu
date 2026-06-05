@@ -1,7 +1,7 @@
 # UIT Waifu
 
 <p align="center">
-  <img src="./assets/uit-waifu-2d-demo.svg" width="280px" alt="UIT Waifu 2D Demo" style="border-radius: 28px;" />
+  <img src="./assets/att.F0MBbwrAbn2oo-j5xm8YI8flBLuD9GMJiho1CBtqSSo.jpeg" width="280px" alt="UIT Waifu 2D Demo" style="border-radius: 28px;" />
 </p>
 
 <p align="center">

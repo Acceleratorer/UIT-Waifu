@@ -1,6 +1,10 @@
 # UIT Waifu
 
 <p align="center">
+  <img src="./assets/uit-waifu-2d-demo.svg" width="280px" alt="UIT Waifu 2D Demo" style="border-radius: 28px;" />
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/AI-Companion-ff69b4?style=for-the-badge" alt="AI Companion" />
   <img src="https://img.shields.io/badge/University-UIT-blue?style=for-the-badge" alt="UIT" />
   <img src="https://img.shields.io/badge/RAG-pgvector-336791?style=for-the-badge" alt="RAG pgvector" />
@@ -158,16 +162,7 @@ Features:
 - Generate starter code
 - Add comments and documentation
 
-Supported languages can include:
-
-- C
-- C++
-- Python
-- Java
-- JavaScript
-- TypeScript
-- SQL
-- Bash
+Supported languages can include C, C++, Python, Java, JavaScript, TypeScript, SQL, and Bash.
 
 ### 4. Document AI And RAG
 

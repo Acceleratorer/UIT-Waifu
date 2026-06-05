@@ -610,6 +610,20 @@ Privacy principles:
 
 ---
 
+## Contributors
+
+<a href="https://github.com/Acceleratorer">
+  <img src="https://github.com/Acceleratorer.png" width="60px;" alt="Acceleratorer" />
+</a>
+<a href="https://github.com/krm1Dre4m">
+  <img src="https://github.com/krm1Dre4m.png" width="60px;" alt="krm1Dre4m" />
+</a>
+<a href="https://github.com/1zuki">
+  <img src="https://github.com/1zuki.png" width="60px;" alt="1zuki" />
+</a>
+
+---
+
 ## License
 
 This project is licensed under the MIT License.

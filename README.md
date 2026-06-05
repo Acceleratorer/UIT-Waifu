@@ -613,13 +613,13 @@ Privacy principles:
 ## Contributors
 
 <a href="https://github.com/Acceleratorer">
-  <img src="https://github.com/Acceleratorer.png" width="60px;" alt="Acceleratorer" />
+  <img src="https://github.com/Acceleratorer.png" width="60px;" alt="Acceleratorer" style="border-radius: 50%; margin-right: 8px;" />
 </a>
 <a href="https://github.com/krm1Dre4m">
-  <img src="https://github.com/krm1Dre4m.png" width="60px;" alt="krm1Dre4m" />
+  <img src="https://github.com/krm1Dre4m.png" width="60px;" alt="krm1Dre4m" style="border-radius: 50%; margin-right: 8px;" />
 </a>
 <a href="https://github.com/1zuki">
-  <img src="https://github.com/1zuki.png" width="60px;" alt="1zuki" />
+  <img src="https://github.com/1zuki.png" width="60px;" alt="1zuki" style="border-radius: 50%;" />
 </a>
 
 ---

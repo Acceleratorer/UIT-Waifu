@@ -16,19 +16,21 @@ Goal: define what UIT Waifu is before building too many features.
 
 Tasks:
 
-- [ ] Define the main user: UIT student
-- [ ] Define the main use cases
-- [ ] Define assistant personality
-- [ ] Define MVP scope
-- [ ] Define deployment target: `waifu.accel.io.vn`
-- [ ] Define database strategy
-- [ ] Define privacy rules
+- [x] Define the main user: UIT student
+- [x] Define the main use cases
+- [x] Define assistant personality
+- [x] Define MVP scope
+- [x] Define deployment target: `waifu.accel.io.vn`
+- [x] Define database strategy
+- [x] Define privacy rules
 
 Deliverables:
 
-- [ ] README updated
-- [ ] ROADMAP.md created
-- [ ] STRUCTURE.md created
+- [x] README updated
+- [x] ROADMAP.md created
+- [x] STRUCTURE.md created
+- [x] API.md, DATABASE.md, PROMPTS.md, DEPLOYMENT.md created
+- [x] CONTRIBUTING.md, .env.example, .gitignore added
 - [ ] Initial project board or issue list
 
 ---

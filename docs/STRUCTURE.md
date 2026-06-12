@@ -463,20 +463,20 @@ Use scripts for:
 
 The `docs/` directory contains project documentation.
 
-Required docs:
+Current docs:
 
 ```txt
-ROADMAP.md
-STRUCTURE.md
+ROADMAP.md      phases and milestones
+STRUCTURE.md    folders and naming
+API.md          HTTP endpoints
+DATABASE.md     schema, pgvector, and RLS
+PROMPTS.md      prompt layers and modes
+DEPLOYMENT.md   Cloudflare and Supabase setup
 ```
 
 Recommended future docs:
 
 ```txt
-API.md
-DATABASE.md
-PROMPTS.md
-DEPLOYMENT.md
 RAG.md
 AVATAR.md
 VOICE.md
@@ -646,7 +646,7 @@ Use REST-like paths:
 
 ## Environment Variables
 
-Recommended `.env.example`:
+The canonical variable list lives in `.env.example` at the repo root and is documented in [DEPLOYMENT.md](./DEPLOYMENT.md#environment-variables). Names must match across `.env.example`, README, and DEPLOYMENT.
 
 ```env
 NEXT_PUBLIC_APP_URL=https://waifu.accel.io.vn
@@ -654,17 +654,18 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 DATABASE_URL=
-OPENAI_API_KEY=
-OPENROUTER_API_KEY=
 NEXTAUTH_SECRET=
 NEXTAUTH_URL=https://waifu.accel.io.vn
-EMBEDDING_MODEL=
+OPENAI_API_KEY=
+OPENROUTER_API_KEY=
+EMBEDDING_MODEL=text-embedding-3-small
 ```
 
 Rules:
 
-- `NEXT_PUBLIC_*` variables are visible to the browser.
-- Service role keys must only be used server-side.
+- `NEXT_PUBLIC_*` variables are visible to the browser. Never put a secret behind that prefix.
+- Service role keys and AI provider keys must only be used server-side.
+- pgvector lives in the same Supabase Postgres instance as `DATABASE_URL`, so no separate vector URL is needed.
 - Never commit `.env.local`.
 
 ---

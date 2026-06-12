@@ -458,12 +458,19 @@ Recommended deployment path:
 
 Detailed working documents:
 
-- [Roadmap](./docs/ROADMAP.md)
-- [Project Structure](./docs/STRUCTURE.md)
+- [Roadmap](./docs/ROADMAP.md) — phases and milestones
+- [Project Structure](./docs/STRUCTURE.md) — folders and naming
+- [API Reference](./docs/API.md) — HTTP endpoints
+- [Database](./docs/DATABASE.md) — schema, pgvector, and RLS
+- [Prompts](./docs/PROMPTS.md) — prompt layers and modes
+- [Deployment](./docs/DEPLOYMENT.md) — Cloudflare and Supabase setup
+- [Contributing](./CONTRIBUTING.md) — setup, conventions, and PR flow
 
 ---
 
 ## Getting Started
+
+> The application is being built phase by phase (see [docs/ROADMAP.md](./docs/ROADMAP.md)). The repo currently holds the planning docs; the commands below apply once the Phase 1 app code lands. See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full developer setup.
 
 Clone the repository:
 
@@ -476,6 +483,12 @@ Install dependencies:
 
 ```bash
 npm install
+```
+
+Set up environment variables:
+
+```bash
+cp .env.example .env.local   # then fill in values
 ```
 
 Run development server:
@@ -494,32 +507,29 @@ http://localhost:3000
 
 ## Environment Variables
 
-Create `.env.local`:
+Copy `.env.example` to `.env.local` and fill in the values. The canonical list lives in [`.env.example`](./.env.example) and [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md); keep all three in sync.
 
 ```env
+# App
 NEXT_PUBLIC_APP_URL=https://waifu.accel.io.vn
-OPENAI_API_KEY=your_openai_api_key
-DATABASE_URL=your_database_url
-NEXTAUTH_SECRET=your_nextauth_secret
+
+# Supabase (NEXT_PUBLIC_* are exposed to the browser)
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+DATABASE_URL=
+
+# Auth
+NEXTAUTH_SECRET=
 NEXTAUTH_URL=https://waifu.accel.io.vn
+
+# AI provider (set the one you use)
+OPENAI_API_KEY=
+OPENROUTER_API_KEY=
+EMBEDDING_MODEL=text-embedding-3-small
 ```
 
-Supabase:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-```
-
-Vector search:
-
-```env
-VECTOR_DATABASE_URL=your_vector_database_url
-EMBEDDING_MODEL=text-embedding-model
-```
-
-Never commit real environment variables.
+pgvector lives in the same Supabase Postgres instance as the relational data, so `DATABASE_URL` covers both — there is no separate vector database URL. Never commit `.env.local` or real keys.
 
 ---
 

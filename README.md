@@ -458,6 +458,7 @@ Recommended deployment path:
 
 Detailed working documents:
 
+- [Features](./docs/FEATURES.md) — detailed feature catalogue by pillar
 - [Roadmap](./docs/ROADMAP.md) — phases and milestones
 - [Project Structure](./docs/STRUCTURE.md) — folders and naming
 - [API Reference](./docs/API.md) — HTTP endpoints

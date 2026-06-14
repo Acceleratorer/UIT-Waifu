@@ -6,6 +6,11 @@ export const metadata: Metadata = {
   description:
     "A web-first AI companion for University of Information Technology students. Chat, study, debug code, and understand documents.",
   metadataBase: new URL("https://waifu.accel.io.vn"),
+  icons: {
+    icon: [{ url: "/icons/favicon.jpg", type: "image/jpeg" }],
+    shortcut: [{ url: "/icons/favicon.jpg", type: "image/jpeg" }],
+    apple: [{ url: "/icons/logo.png", type: "image/png" }],
+  },
 };
 
 export default function RootLayout({

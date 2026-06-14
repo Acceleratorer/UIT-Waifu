@@ -63,7 +63,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       headers: {
         Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": env.APP_URL || "https://waifu.accel.io.vn",
+        "HTTP-Referer": env.APP_URL || "https://accel.io.vn/waifu",
         "X-Title": "UIT Waifu",
       },
       body: JSON.stringify({

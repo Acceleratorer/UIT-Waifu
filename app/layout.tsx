@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://accel.io.vn/waifu";
 
 export const metadata: Metadata = {
   title: "UIT Waifu — AI companion for UIT students",
   description:
     "A web-first AI companion for University of Information Technology students. Chat, study, debug code, and understand documents.",
-  metadataBase: new URL("https://waifu.accel.io.vn"),
+  metadataBase: new URL(appUrl),
   icons: {
     icon: [{ url: `${basePath}/icons/favicon.jpg`, type: "image/jpeg" }],
     shortcut: [{ url: `${basePath}/icons/favicon.jpg`, type: "image/jpeg" }],

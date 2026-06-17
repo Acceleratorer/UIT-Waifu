@@ -1,5 +1,6 @@
 /// <reference types="@cloudflare/workers-types" />
-import { BASE_SYSTEM_PROMPT } from "../../lib/prompts/base";
+import { composeSystemPrompt } from "../../lib/prompts/compose";
+import { DEFAULT_MODE, isModeId } from "../../data/modes";
 
 interface Env {
   OPENROUTER_API_KEY: string;
@@ -56,6 +57,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return errorResponse(400, "Invalid messages.");
   }
 
+  const rawMode = (body as { mode?: unknown })?.mode;
+  const mode = isModeId(rawMode) ? rawMode : DEFAULT_MODE;
+
   const upstream = await fetch(
     "https://openrouter.ai/api/v1/chat/completions",
     {
@@ -70,7 +74,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         model: env.OPENROUTER_MODEL || DEFAULT_MODEL,
         stream: true,
         messages: [
-          { role: "system", content: BASE_SYSTEM_PROMPT },
+          { role: "system", content: composeSystemPrompt(mode) },
           ...messages,
         ],
       }),

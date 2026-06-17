@@ -79,12 +79,12 @@ Goal: make UIT Waifu useful for real student workflows.
 
 Modes:
 
-- [ ] General chat
-- [ ] Study tutor
-- [ ] Code debugging
-- [ ] Document Q&A placeholder
-- [ ] Exam revision
-- [ ] Project planning
+- [x] General chat
+- [x] Study tutor
+- [x] Code debugging
+- [x] Document Q&A placeholder
+- [x] Exam revision
+- [x] Project planning
 
 Study tutor features:
 

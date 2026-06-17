@@ -2,9 +2,11 @@
 
 import { useCallback, useRef, useState } from "react";
 import type { ChatMessage } from "../types";
+import { DEFAULT_MODE, type ModeId } from "@/data/modes";
 
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const CHAT_ENDPOINT =
-  process.env.NEXT_PUBLIC_CHAT_ENDPOINT || "/api/chat";
+  process.env.NEXT_PUBLIC_CHAT_ENDPOINT || `${BASE_PATH}/api/chat`;
 
 interface UseChatResult {
   messages: ChatMessage[];
@@ -12,6 +14,8 @@ interface UseChatResult {
   setInput: (value: string) => void;
   isStreaming: boolean;
   error: string | null;
+  mode: ModeId;
+  setMode: (mode: ModeId) => void;
   send: () => void;
   stop: () => void;
 }
@@ -21,6 +25,7 @@ export function useChat(): UseChatResult {
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<ModeId>(DEFAULT_MODE);
   const abortRef = useRef<AbortController | null>(null);
 
   const stop = useCallback(() => {
@@ -53,7 +58,7 @@ export function useChat(): UseChatResult {
         const res = await fetch(CHAT_ENDPOINT, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: outgoing }),
+          body: JSON.stringify({ messages: outgoing, mode }),
           signal: controller.signal,
         });
 
@@ -116,7 +121,7 @@ export function useChat(): UseChatResult {
         abortRef.current = null;
       }
     })();
-  }, [input, isStreaming, messages]);
+  }, [input, isStreaming, messages, mode]);
 
-  return { messages, input, setInput, isStreaming, error, send, stop };
+  return { messages, input, setInput, isStreaming, error, mode, setMode, send, stop };
 }

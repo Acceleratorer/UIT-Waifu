@@ -3,10 +3,12 @@
 import { useEffect, useRef } from "react";
 import { MessageList } from "./message-list";
 import { MessageInput } from "./message-input";
+import { ModeSelector } from "./mode-selector";
 import { useChat } from "@/features/chat/hooks/use-chat";
+import { MODES } from "@/data/modes";
 
 export function ChatWindow() {
-  const { messages, input, setInput, isStreaming, error, send, stop } =
+  const { messages, input, setInput, isStreaming, error, mode, setMode, send, stop } =
     useChat();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -29,6 +31,12 @@ export function ChatWindow() {
               {error}
             </p>
           )}
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <ModeSelector value={mode} onChange={setMode} disabled={isStreaming} />
+            <span className="truncate text-xs text-foreground/40">
+              {MODES.find((m) => m.id === mode)?.description}
+            </span>
+          </div>
           <MessageInput
             value={input}
             onChange={setInput}

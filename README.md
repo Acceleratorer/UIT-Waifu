@@ -465,6 +465,7 @@ Detailed working documents:
 - [API Reference](./docs/API.md) — HTTP endpoints
 - [Database](./docs/DATABASE.md) — schema, pgvector, and RLS
 - [Prompts](./docs/PROMPTS.md) — prompt layers and modes
+- [Avatar Integration](./docs/AVATAR_INTEGRATION.md) — 3D VRM avatar plan, adapted from Open-LLM-VTuber
 - [Deployment](./docs/DEPLOYMENT.md) — Cloudflare and Supabase setup
 - [Contributing](./CONTRIBUTING.md) — setup, conventions, and PR flow
 

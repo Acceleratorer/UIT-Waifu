@@ -183,7 +183,7 @@ Where UIT Waifu runs.
 
 | Platform | Status | Notes |
 |---|---|---|
-| Web (`waifu.accel.io.vn`) | [~] | Primary target, Cloudflare Pages |
+| Web (`accel.io.vn/waifu`) | [~] | Primary target, Cloudflare Pages |
 | Discord bot | [?] | Slash commands, per-user memory, voice channels |
 | Windows desktop | [?] | Electron / Tauri shell, later |
 | macOS desktop | [?] | Same shell, later |

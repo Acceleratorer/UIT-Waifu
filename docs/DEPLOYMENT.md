@@ -1,13 +1,13 @@
 # UIT Waifu Deployment Guide
 
-This document describes how to deploy UIT Waifu to production at `waifu.accel.io.vn` on Cloudflare Pages, backed by Supabase.
+This document describes how to deploy UIT Waifu to production at `accel.io.vn/waifu` on Cloudflare Pages, backed by Supabase.
 
 ---
 
 ## Targets
 
 ```txt
-Production domain:  https://waifu.accel.io.vn
+Production domain:  https://accel.io.vn/waifu
 Hosting:            Cloudflare Pages
 Database:           Supabase (PostgreSQL + pgvector)
 File storage:       Supabase Storage
@@ -30,7 +30,8 @@ These are the canonical variables for the project. The same list appears in `.en
 
 ```env
 # App
-NEXT_PUBLIC_APP_URL=https://waifu.accel.io.vn
+NEXT_PUBLIC_APP_URL=https://accel.io.vn/waifu
+NEXT_PUBLIC_BASE_PATH=/waifu
 
 # Supabase (NEXT_PUBLIC_* are exposed to the browser)
 NEXT_PUBLIC_SUPABASE_URL=
@@ -40,7 +41,7 @@ DATABASE_URL=
 
 # Auth
 NEXTAUTH_SECRET=
-NEXTAUTH_URL=https://waifu.accel.io.vn
+NEXTAUTH_URL=https://accel.io.vn/waifu
 
 # AI provider (set the one you use)
 OPENAI_API_KEY=
@@ -79,18 +80,23 @@ Steps:
 
 ---
 
-## Custom Domain And DNS
+## Domain, Routing, And DNS
+
+UIT Waifu is served at the path `/waifu` under the existing `accel.io.vn` zone, not on its own subdomain.
 
 ```txt
-Custom domain: waifu.accel.io.vn
-DNS record:    CNAME  waifu  ->  <project>.pages.dev
+Domain:    accel.io.vn
+Base path: /waifu
+Public URL: https://accel.io.vn/waifu
 ```
 
 Steps:
 
-1. In the Pages project, add the custom domain `waifu.accel.io.vn`.
-2. Cloudflare creates the CNAME automatically when the zone is on Cloudflare. Otherwise add it manually.
-3. Wait for SSL to provision, then verify `https://waifu.accel.io.vn` serves the app.
+1. Build the app with the base path set to `/waifu` (see `next.config.mjs` `basePath`/`assetPrefix`).
+2. Route `accel.io.vn/waifu/*` to this Pages project. Options:
+   - A Cloudflare Pages custom domain of `accel.io.vn` if this project owns the zone root, or
+   - A reverse-proxy / route rule that forwards `/waifu/*` to `<project>.pages.dev`.
+3. Wait for SSL to provision, then verify `https://accel.io.vn/waifu` serves the app.
 
 ---
 

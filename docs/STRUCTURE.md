@@ -649,13 +649,14 @@ Use REST-like paths:
 The canonical variable list lives in `.env.example` at the repo root and is documented in [DEPLOYMENT.md](./DEPLOYMENT.md#environment-variables). Names must match across `.env.example`, README, and DEPLOYMENT.
 
 ```env
-NEXT_PUBLIC_APP_URL=https://waifu.accel.io.vn
+NEXT_PUBLIC_APP_URL=https://accel.io.vn/waifu
+NEXT_PUBLIC_BASE_PATH=/waifu
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 DATABASE_URL=
 NEXTAUTH_SECRET=
-NEXTAUTH_URL=https://waifu.accel.io.vn
+NEXTAUTH_URL=https://accel.io.vn/waifu
 OPENAI_API_KEY=
 OPENROUTER_API_KEY=
 EMBEDDING_MODEL=text-embedding-3-small
@@ -737,4 +738,4 @@ UIT-Waifu
 └── package.json
 ```
 
-This is enough to ship the first version to `waifu.accel.io.vn`.
+This is enough to ship the first version to `accel.io.vn/waifu`.

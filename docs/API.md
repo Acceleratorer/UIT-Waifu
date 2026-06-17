@@ -12,7 +12,7 @@ The API is the boundary between the frontend and the AI/data layers. Keep route 
 
 ```txt
 Local:      http://localhost:3000/api
-Production:  https://waifu.accel.io.vn/api
+Production:  https://accel.io.vn/waifu/api
 ```
 
 ### Content types

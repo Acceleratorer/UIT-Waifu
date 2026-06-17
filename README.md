@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/AI-Companion-ff69b4?style=for-the-badge" alt="AI Companion" />
   <img src="https://img.shields.io/badge/University-UIT-blue?style=for-the-badge" alt="UIT" />
   <img src="https://img.shields.io/badge/RAG-pgvector-336791?style=for-the-badge" alt="RAG pgvector" />
-  <img src="https://img.shields.io/badge/Deploy-waifu.accel.io.vn-black?style=for-the-badge" alt="Deployment" />
+  <img src="https://img.shields.io/badge/Deploy-accel.io.vn%2Fwaifu-black?style=for-the-badge" alt="Deployment" />
   <img src="https://img.shields.io/badge/Status-In_Development-yellow?style=for-the-badge" alt="Status" />
 </p>
 
@@ -24,8 +24,8 @@
   <a href="https://github.com/Acceleratorer/UIT-Waifu">
     <img src="https://img.shields.io/badge/GitHub-UIT--Waifu-black?style=for-the-badge&logo=github" alt="GitHub Repository" />
   </a>
-  <a href="https://waifu.accel.io.vn">
-    <img src="https://img.shields.io/badge/Target-waifu.accel.io.vn-ff69b4?style=for-the-badge" alt="Target Domain" />
+  <a href="https://accel.io.vn/waifu">
+    <img src="https://img.shields.io/badge/Target-accel.io.vn%2Fwaifu-ff69b4?style=for-the-badge" alt="Target Domain" />
   </a>
 </p>
 
@@ -40,7 +40,7 @@ The project is not only a chatbot. It is planned as a complete AI companion syst
 The first goal is to build a useful MVP that runs at:
 
 ```txt
-https://waifu.accel.io.vn
+https://accel.io.vn/waifu
 ```
 
 The product direction is simple:
@@ -74,7 +74,7 @@ The MVP should be lightweight and web-first. Advanced avatar, voice, Live2D, VRM
 
 The first production-ready version should include:
 
-- Landing page for `waifu.accel.io.vn`
+- Landing page for `accel.io.vn/waifu`
 - Chat interface
 - Streaming AI responses
 - Markdown and code block rendering
@@ -265,7 +265,7 @@ Storage: Supabase Storage
 Auth: Supabase Auth or NextAuth.js
 AI Provider: OpenAI API, OpenRouter, Gemini, or compatible LLM provider
 Deployment: Cloudflare Pages
-Production Domain: waifu.accel.io.vn
+Production Domain: accel.io.vn/waifu
 ```
 
 Why this stack:
@@ -284,7 +284,7 @@ Why this stack:
 User
  │
  ▼
-waifu.accel.io.vn
+accel.io.vn/waifu
  │
  ▼
 Next.js Frontend
@@ -431,23 +431,24 @@ Grounded Answer
 Target production domain:
 
 ```txt
-https://waifu.accel.io.vn
+https://accel.io.vn/waifu
 ```
 
 Recommended Cloudflare setup:
 
 ```txt
 Cloudflare Pages project: UIT-Waifu
-Custom domain: waifu.accel.io.vn
-DNS record: CNAME waifu -> <cloudflare-pages-project>.pages.dev
+Domain: accel.io.vn
+Base path: /waifu
+Public URL: https://accel.io.vn/waifu
 ```
 
 Recommended deployment path:
 
-1. Build the MVP as a Next.js web app.
+1. Build the MVP as a Next.js web app with base path `/waifu`.
 2. Connect GitHub repository to Cloudflare Pages.
 3. Add environment variables.
-4. Add custom domain `waifu.accel.io.vn`.
+4. Route `accel.io.vn/waifu/*` to the Pages project.
 5. Verify DNS and SSL.
 6. Add Supabase connection.
 7. Add document upload and RAG.
@@ -512,7 +513,8 @@ Copy `.env.example` to `.env.local` and fill in the values. The canonical list l
 
 ```env
 # App
-NEXT_PUBLIC_APP_URL=https://waifu.accel.io.vn
+NEXT_PUBLIC_APP_URL=https://accel.io.vn/waifu
+NEXT_PUBLIC_BASE_PATH=/waifu
 
 # Supabase (NEXT_PUBLIC_* are exposed to the browser)
 NEXT_PUBLIC_SUPABASE_URL=
@@ -522,7 +524,7 @@ DATABASE_URL=
 
 # Auth
 NEXTAUTH_SECRET=
-NEXTAUTH_URL=https://waifu.accel.io.vn
+NEXTAUTH_URL=https://accel.io.vn/waifu
 
 # AI provider (set the one you use)
 OPENAI_API_KEY=
@@ -651,7 +653,7 @@ Important academic and administrative information should always be verified thro
 ```txt
 GitHub: https://github.com/Acceleratorer
 Repository: https://github.com/Acceleratorer/UIT-Waifu
-Production target: https://waifu.accel.io.vn
+Production target: https://accel.io.vn/waifu
 ```
 
 ---

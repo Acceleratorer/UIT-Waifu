@@ -20,7 +20,7 @@ Tasks:
 - [x] Define the main use cases
 - [x] Define assistant personality
 - [x] Define MVP scope
-- [x] Define deployment target: `waifu.accel.io.vn`
+- [x] Define deployment target: `accel.io.vn/waifu`
 - [x] Define database strategy
 - [x] Define privacy rules
 
@@ -54,7 +54,7 @@ Core features:
 - [ ] Basic AI API route
 - [ ] Basic system prompt
 - [ ] Cloudflare Pages deployment
-- [ ] Custom domain: `waifu.accel.io.vn`
+- [ ] Public path: `accel.io.vn/waifu`
 
 Recommended routes:
 
@@ -66,7 +66,7 @@ Recommended routes:
 
 Success criteria:
 
-- Users can open `waifu.accel.io.vn`
+- Users can open `accel.io.vn/waifu`
 - Users can send a message
 - UIT Waifu can respond
 - Responses support Markdown and code blocks
@@ -353,7 +353,7 @@ Recommended build order:
 
 The MVP is considered done when:
 
-- [ ] `waifu.accel.io.vn` is live
+- [ ] `accel.io.vn/waifu` is live
 - [ ] User can chat with UIT Waifu
 - [ ] User can select assistant mode
 - [ ] User can upload at least one PDF

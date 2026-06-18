@@ -205,16 +205,16 @@ function call_anthropic(string $apiKey, string $model, string $mode, array $mess
     curl_close($ch);
 
     if (!is_string($response)) {
-        json_error_response(502, 'internal_error', $curlError !== '' ? $curlError : 'Could not reach the chat provider.');
+        json_error_response(500, 'internal_error', $curlError !== '' ? $curlError : 'Could not reach the chat provider.');
     }
 
     if ($status < 200 || $status >= 300) {
-        json_error_response(502, 'internal_error', "Chat provider returned an error ($status).");
+        json_error_response(500, 'internal_error', "Chat provider returned an error ($status).");
     }
 
     $decoded = json_decode($response, true);
     if (!is_array($decoded) || !isset($decoded['content']) || !is_array($decoded['content'])) {
-        json_error_response(502, 'internal_error', 'Chat provider returned an invalid response.');
+        json_error_response(500, 'internal_error', 'Chat provider returned an invalid response.');
     }
 
     $text = '';
@@ -225,7 +225,7 @@ function call_anthropic(string $apiKey, string $model, string $mode, array $mess
     }
 
     if ($text === '') {
-        json_error_response(502, 'internal_error', 'Chat provider returned an empty response.');
+        json_error_response(500, 'internal_error', 'Chat provider returned an empty response.');
     }
 
     return $text;

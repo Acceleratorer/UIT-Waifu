@@ -1,6 +1,9 @@
 /// <reference types="@cloudflare/workers-types" />
 import { composeSystemPrompt } from "../../lib/prompts/compose";
-import { DEFAULT_MODE, isModeId } from "../../data/modes";
+import {
+  chatRequestSchema,
+  formatZodIssues,
+} from "../../lib/validators/chat";
 
 interface Env {
   OPENROUTER_API_KEY: string;
@@ -8,84 +11,85 @@ interface Env {
   APP_URL?: string;
 }
 
-interface IncomingMessage {
-  role: "user" | "assistant";
-  content: string;
-}
-
-const MAX_MESSAGES = 50;
-const MAX_CONTENT_CHARS = 12_000;
 const DEFAULT_MODEL = "google/gemini-2.0-flash-001";
 
-function errorResponse(status: number, message: string): Response {
-  return new Response(JSON.stringify({ error: { message } }), {
+function jsonErrorResponse(
+  status: number,
+  code: string,
+  message: string,
+  details: unknown[] = []
+): Response {
+  return new Response(JSON.stringify({ error: { code, message, details } }), {
     status,
     headers: { "Content-Type": "application/json" },
   });
-}
-
-function isValidMessages(value: unknown): value is IncomingMessage[] {
-  if (!Array.isArray(value) || value.length === 0) return false;
-  if (value.length > MAX_MESSAGES) return false;
-  return value.every(
-    (m) =>
-      m &&
-      typeof m === "object" &&
-      (m.role === "user" || m.role === "assistant") &&
-      typeof m.content === "string" &&
-      m.content.length > 0 &&
-      m.content.length <= MAX_CONTENT_CHARS
-  );
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
 
   if (!env.OPENROUTER_API_KEY) {
-    return errorResponse(500, "Chat is not configured. Missing API key.");
+    return jsonErrorResponse(
+      500,
+      "internal_error",
+      "Chat is not configured. Missing API key."
+    );
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return errorResponse(400, "Invalid JSON body.");
+    return jsonErrorResponse(400, "validation_error", "Invalid JSON body.");
   }
 
-  const messages = (body as { messages?: unknown })?.messages;
-  if (!isValidMessages(messages)) {
-    return errorResponse(400, "Invalid messages.");
+  const parsedRequest = chatRequestSchema.safeParse(body);
+  if (!parsedRequest.success) {
+    return jsonErrorResponse(
+      400,
+      "validation_error",
+      "Invalid chat request.",
+      formatZodIssues(parsedRequest.error)
+    );
   }
 
-  const rawMode = (body as { mode?: unknown })?.mode;
-  const mode = isModeId(rawMode) ? rawMode : DEFAULT_MODE;
+  const { messages, mode } = parsedRequest.data;
 
-  const upstream = await fetch(
-    "https://openrouter.ai/api/v1/chat/completions",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": env.APP_URL || "https://accel.io.vn/waifu",
-        "X-Title": "UIT Waifu",
-      },
-      body: JSON.stringify({
-        model: env.OPENROUTER_MODEL || DEFAULT_MODEL,
-        stream: true,
-        messages: [
-          { role: "system", content: composeSystemPrompt(mode) },
-          ...messages,
-        ],
-      }),
-    }
-  );
+  let upstream: Response;
+  try {
+    upstream = await fetch(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": env.APP_URL || "https://accel.io.vn/waifu",
+          "X-Title": "UIT Waifu",
+        },
+        body: JSON.stringify({
+          model: env.OPENROUTER_MODEL || DEFAULT_MODEL,
+          stream: true,
+          messages: [
+            { role: "system", content: composeSystemPrompt(mode) },
+            ...messages,
+          ],
+        }),
+      }
+    );
+  } catch {
+    return jsonErrorResponse(
+      502,
+      "internal_error",
+      "Could not reach the chat provider."
+    );
+  }
 
   if (!upstream.ok || !upstream.body) {
-    const detail = await upstream.text().catch(() => "");
-    return errorResponse(
+    return jsonErrorResponse(
       502,
-      `Upstream error (${upstream.status}). ${detail.slice(0, 200)}`
+      "internal_error",
+      `Chat provider returned an error (${upstream.status}).`
     );
   }
 

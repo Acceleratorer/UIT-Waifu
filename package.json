@@ -8,7 +8,7 @@
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=4096 next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "echo \"No tests yet\" && exit 0"
+    "test": "tsx --test tests/unit/chat-validator.test.ts"
   },
   "dependencies": {
     "next": "^14.2.35",
@@ -27,8 +27,9 @@
     "cross-env": "^10.1.0",
     "eslint": "8.57.0",
     "eslint-config-next": "^14.2.35",
-    "postcss": "8.4.39",
+    "postcss": "^8.5.15",
     "tailwindcss": "3.4.6",
+    "tsx": "^4.22.4",
     "typescript": "5.5.3"
   }
 }

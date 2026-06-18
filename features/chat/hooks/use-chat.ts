@@ -8,6 +8,21 @@ const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const CHAT_ENDPOINT =
   process.env.NEXT_PUBLIC_CHAT_ENDPOINT || `${BASE_PATH}/api/chat`;
 
+async function readErrorMessage(res: Response): Promise<string> {
+  const fallback = `Request failed (${res.status})`;
+  const contentType = res.headers.get("content-type") ?? "";
+
+  if (contentType.includes("application/json")) {
+    const body = (await res.json().catch(() => null)) as
+      | { error?: { message?: string } }
+      | null;
+    return body?.error?.message || fallback;
+  }
+
+  const detail = await res.text().catch(() => "");
+  return detail || fallback;
+}
+
 interface UseChatResult {
   messages: ChatMessage[];
   input: string;
@@ -63,8 +78,7 @@ export function useChat(): UseChatResult {
         });
 
         if (!res.ok || !res.body) {
-          const detail = await res.text().catch(() => "");
-          throw new Error(detail || `Request failed (${res.status})`);
+          throw new Error(await readErrorMessage(res));
         }
 
         const reader = res.body.getReader();
@@ -106,7 +120,16 @@ export function useChat(): UseChatResult {
           }
         }
       } catch (err) {
-        if ((err as Error).name === "AbortError") return;
+        if ((err as Error).name === "AbortError") {
+          setMessages((prev) => {
+            const last = prev[prev.length - 1];
+            if (last && last.role === "assistant" && last.content === "") {
+              return prev.slice(0, -1);
+            }
+            return prev;
+          });
+          return;
+        }
         setError((err as Error).message || "Something went wrong.");
         // Drop the empty assistant placeholder on failure.
         setMessages((prev) => {

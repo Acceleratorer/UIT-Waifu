@@ -93,10 +93,13 @@ Public URL: https://accel.io.vn/waifu
 Steps:
 
 1. Build the app with the base path set to `/waifu` (see `next.config.mjs` `basePath`/`assetPrefix`).
-2. Route `accel.io.vn/waifu/*` to this Pages project. Options:
+2. Keep `public/_redirects` in place so Cloudflare Pages rewrites `/waifu` page and asset requests to the exported static files.
+3. Route `accel.io.vn/waifu/*` to this Pages project. Options:
    - A Cloudflare Pages custom domain of `accel.io.vn` if this project owns the zone root, or
    - A reverse-proxy / route rule that forwards `/waifu/*` to `<project>.pages.dev`.
-3. Wait for SSL to provision, then verify `https://accel.io.vn/waifu` serves the app.
+4. Wait for SSL to provision, then verify `https://accel.io.vn/waifu` serves the app.
+
+The API is available both at `/api/*` for direct Pages-project access and at `/waifu/api/*` for the production base path.
 
 ---
 

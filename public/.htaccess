@@ -1,0 +1,16 @@
+# UIT Waifu — static export served at /waifu on Apache (DirectAdmin)
+Options -MultiViews
+RewriteEngine On
+RewriteBase /waifu/
+
+# Serve existing files/directories as-is
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Map extensionless clean URLs to their .html file (e.g. /waifu/chat -> chat.html)
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^(.+)$ $1.html [L]
+
+# Fallback for unknown routes
+ErrorDocument 404 /waifu/404.html

@@ -1,6 +1,6 @@
 # UIT Waifu API Reference
 
-This document defines the HTTP API for UIT Waifu. All routes are implemented as Next.js Route Handlers under `app/api/`.
+This document defines the HTTP API for UIT Waifu. Current production chat routes run as Cloudflare Pages Functions under `functions/api/`, with `/waifu/api/*` aliases for the production base path.
 
 The API is the boundary between the frontend and the AI/data layers. Keep route handlers thin: validate input, call a `lib/` or `features/` service, return a typed response.
 
@@ -107,6 +107,13 @@ data: {"delta":"lets a class "}
 
 data: {"done":true,"conversationId":"...","messageId":"..."}
 ```
+
+The chat Function normalizes provider-specific streams into this `{ "delta": string }` shape. Supported providers:
+
+| Provider | Env value | Required secret | Default model |
+| -------- | --------- | --------------- | ------------- |
+| Anthropic Claude | `AI_PROVIDER=anthropic` or `AI_PROVIDER=claude` | `ANTHROPIC_API_KEY` | `claude-haiku-4-5` |
+| OpenRouter | `AI_PROVIDER=openrouter` | `OPENROUTER_API_KEY` | `google/gemini-2.0-flash-001` |
 
 Errors: `400` invalid mode/messages, `401` unauthenticated, `429` rate limited.
 

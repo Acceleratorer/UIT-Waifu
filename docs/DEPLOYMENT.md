@@ -44,15 +44,23 @@ NEXTAUTH_SECRET=
 NEXTAUTH_URL=https://accel.io.vn/waifu
 
 # AI provider (set the one you use)
+AI_PROVIDER=anthropic
 OPENAI_API_KEY=
 OPENROUTER_API_KEY=
+ANTHROPIC_API_KEY=
 EMBEDDING_MODEL=text-embedding-3-small
+
+# Chat provider models
+OPENROUTER_MODEL=google/gemini-2.0-flash-001
+ANTHROPIC_MODEL=claude-haiku-4-5
+APP_URL=https://accel.io.vn/waifu
 ```
 
 Rules:
 
 - `NEXT_PUBLIC_*` variables are visible in the browser bundle. Never put a secret behind that prefix.
-- `SUPABASE_SERVICE_ROLE_KEY` and AI provider keys are server-only. They must only be read in Route Handlers or server components.
+- `SUPABASE_SERVICE_ROLE_KEY` and AI provider keys are server-only. They must only be read in Pages Functions, Route Handlers, or server components.
+- `AI_PROVIDER` can be `anthropic` or `openrouter`. UIT Waifu uses Anthropic Claude for chat by default; OpenRouter remains available as a fallback provider.
 - `DATABASE_URL` points at the Supabase Postgres instance; pgvector lives in the same database, so no separate vector URL is needed.
 - Never commit `.env.local`. Set production values in the Cloudflare Pages dashboard.
 
@@ -117,7 +125,7 @@ The API is available both at `/api/*` for direct Pages-project access and at `/w
 Before promoting a build to production:
 
 - [ ] `npm run build` succeeds locally.
-- [ ] `npm run lint`, `npm run typecheck`, and `npm test` pass.
+- [ ] `npm run lint`, `npm run typecheck`, `npm run secrets:scan`, and `npm test` pass.
 - [ ] All required environment variables are set in Cloudflare Pages.
 - [ ] Supabase schema and RLS policies are applied.
 - [ ] `GET /api/health` returns `200` on the preview deployment.

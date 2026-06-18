@@ -4,14 +4,21 @@ import {
   chatRequestSchema,
   formatZodIssues,
 } from "../../lib/validators/chat";
+import {
+  buildProviderRequest,
+  extractProviderDelta,
+  getMissingProviderKeyMessage,
+  resolveChatProvider,
+} from "../../lib/ai/providers";
 
 interface Env {
-  OPENROUTER_API_KEY: string;
+  AI_PROVIDER?: string;
+  OPENROUTER_API_KEY?: string;
   OPENROUTER_MODEL?: string;
+  ANTHROPIC_API_KEY?: string;
+  ANTHROPIC_MODEL?: string;
   APP_URL?: string;
 }
-
-const DEFAULT_MODEL = "google/gemini-2.0-flash-001";
 
 function jsonErrorResponse(
   status: number,
@@ -28,12 +35,18 @@ function jsonErrorResponse(
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
 
-  if (!env.OPENROUTER_API_KEY) {
+  const provider = resolveChatProvider(env);
+  if (!provider) {
     return jsonErrorResponse(
       500,
       "internal_error",
-      "Chat is not configured. Missing API key."
+      "Chat is not configured. Unsupported AI provider."
     );
+  }
+
+  const missingKeyMessage = getMissingProviderKeyMessage(provider, env);
+  if (missingKeyMessage) {
+    return jsonErrorResponse(500, "internal_error", missingKeyMessage);
   }
 
   let body: unknown;
@@ -54,29 +67,16 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   }
 
   const { messages, mode } = parsedRequest.data;
+  const upstreamRequest = buildProviderRequest(
+    provider,
+    env,
+    composeSystemPrompt(mode),
+    messages
+  );
 
   let upstream: Response;
   try {
-    upstream = await fetch(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": env.APP_URL || "https://accel.io.vn/waifu",
-          "X-Title": "UIT Waifu",
-        },
-        body: JSON.stringify({
-          model: env.OPENROUTER_MODEL || DEFAULT_MODEL,
-          stream: true,
-          messages: [
-            { role: "system", content: composeSystemPrompt(mode) },
-            ...messages,
-          ],
-        }),
-      }
-    );
+    upstream = await fetch(upstreamRequest.url, upstreamRequest.init);
   } catch {
     return jsonErrorResponse(
       502,
@@ -93,7 +93,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     );
   }
 
-  // Translate OpenRouter's OpenAI-style SSE into our {delta} events.
+  // Translate provider-specific SSE into our {delta} events.
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
   const reader = upstream.body.getReader();
@@ -119,7 +119,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           if (data === "[DONE]") continue;
           try {
             const parsed = JSON.parse(data);
-            const delta: string = parsed.choices?.[0]?.delta?.content ?? "";
+            const delta = extractProviderDelta(provider, parsed);
             if (delta) {
               controller.enqueue(
                 encoder.encode(`data: ${JSON.stringify({ delta })}\n\n`)

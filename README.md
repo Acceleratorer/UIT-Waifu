@@ -528,12 +528,25 @@ NEXTAUTH_SECRET=
 NEXTAUTH_URL=https://accel.io.vn/waifu
 
 # AI provider (set the one you use)
+AI_PROVIDER=anthropic
 OPENAI_API_KEY=
 OPENROUTER_API_KEY=
+ANTHROPIC_API_KEY=
 EMBEDDING_MODEL=text-embedding-3-small
+
+# Chat provider models
+OPENROUTER_MODEL=google/gemini-2.0-flash-001
+ANTHROPIC_MODEL=claude-haiku-4-5
+APP_URL=https://accel.io.vn/waifu
 ```
 
 pgvector lives in the same Supabase Postgres instance as the relational data, so `DATABASE_URL` covers both — there is no separate vector database URL. Never commit `.env.local` or real keys.
+
+Before committing, run:
+
+```bash
+npm run secrets:scan
+```
 
 ---
 

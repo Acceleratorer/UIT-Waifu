@@ -18,6 +18,8 @@ const chatMessageSchema = z.object({
     }),
 });
 
+export type ChatMessage = z.infer<typeof chatMessageSchema>;
+
 export const chatRequestSchema = z.object({
   mode: z
     .string({ required_error: "Mode is required." })

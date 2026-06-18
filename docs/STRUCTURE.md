@@ -657,9 +657,14 @@ SUPABASE_SERVICE_ROLE_KEY=
 DATABASE_URL=
 NEXTAUTH_SECRET=
 NEXTAUTH_URL=https://accel.io.vn/waifu
+AI_PROVIDER=anthropic
 OPENAI_API_KEY=
 OPENROUTER_API_KEY=
+ANTHROPIC_API_KEY=
 EMBEDDING_MODEL=text-embedding-3-small
+OPENROUTER_MODEL=google/gemini-2.0-flash-001
+ANTHROPIC_MODEL=claude-haiku-4-5
+APP_URL=https://accel.io.vn/waifu
 ```
 
 Rules:

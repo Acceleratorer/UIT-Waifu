@@ -109,9 +109,10 @@ Code assistant features:
 
 Success criteria:
 
-- User can choose assistant mode
-- Each mode uses a different prompt template
-- Code answers are formatted clearly
+- [x] User can choose assistant mode
+- [x] Each mode uses a different prompt template
+- [x] Chat provider stream is normalized for OpenRouter and Anthropic Claude
+- [ ] Code answers are verified against a real provider response
 
 ---
 

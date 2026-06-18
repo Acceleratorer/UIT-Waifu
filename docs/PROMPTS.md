@@ -24,7 +24,7 @@ Every chat request builds its system prompt from layers, in this order:
 5. Safety footer         (always)
 ```
 
-The final system prompt is assembled by `lib/prompts/base.ts` and handed to the LLM by `lib/ai/`. Keeping layers separate means a mode change swaps one layer, not the whole prompt.
+The final system prompt is assembled by `lib/prompts/base.ts` and handed to the configured chat provider through `lib/ai/`. Keeping layers separate means a mode change swaps one layer, not the whole prompt.
 
 ---
 

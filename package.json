@@ -8,7 +8,8 @@
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=4096 next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "tsx --test tests/unit/chat-validator.test.ts",
+    "secrets:scan": "node scripts/scan-secrets.mjs",
+    "test": "tsx --test tests/unit/chat-validator.test.ts tests/unit/chat-providers.test.ts",
     "typecheck": "tsc --noEmit --project tsconfig.typecheck.json && tsc --noEmit --project tsconfig.functions.json"
   },
   "dependencies": {

@@ -66,6 +66,7 @@ The folder structure and naming conventions are defined in [docs/STRUCTURE.md](.
    ```bash
    npm run lint
    npm run typecheck
+   npm run secrets:scan
    npm test
    npm run build
    ```

@@ -13,6 +13,13 @@ dist/
 .env
 .env.local
 .env*.local
+.env.development
+.env.production
+.env.staging
+.env.test
+.dev.vars
+.dev.vars.*
+!.env.example
 
 # Cloudflare
 .vercel
@@ -26,10 +33,12 @@ yarn-error.log*
 
 # Testing
 coverage/
+.playwright-cli/
 
 # Editor / OS
 .DS_Store
 .idea/
 .vscode/
 *.swp
+*.tsbuildinfo
 Thumbs.db

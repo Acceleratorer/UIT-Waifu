@@ -117,7 +117,7 @@ The API is available both at `/api/*` for direct Pages-project access and at `/w
 Before promoting a build to production:
 
 - [ ] `npm run build` succeeds locally.
-- [ ] `npm run lint` and `npm test` pass.
+- [ ] `npm run lint`, `npm run typecheck`, and `npm test` pass.
 - [ ] All required environment variables are set in Cloudflare Pages.
 - [ ] Supabase schema and RLS policies are applied.
 - [ ] `GET /api/health` returns `200` on the preview deployment.

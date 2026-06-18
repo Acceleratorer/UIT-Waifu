@@ -1,5 +1,7 @@
 /waifu/_next/* /_next/:splat 200
 /waifu/icons/* /icons/:splat 200
+/waifu/settings /settings 200
+/waifu/settings/ /settings 200
 /waifu/chat /chat 200
 /waifu/chat/ /chat 200
 /waifu / 200

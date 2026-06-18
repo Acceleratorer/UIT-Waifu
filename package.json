@@ -8,7 +8,8 @@
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=4096 next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "tsx --test tests/unit/chat-validator.test.ts"
+    "test": "tsx --test tests/unit/chat-validator.test.ts",
+    "typecheck": "tsc --noEmit --project tsconfig.typecheck.json && tsc --noEmit --project tsconfig.functions.json"
   },
   "dependencies": {
     "next": "^14.2.35",
@@ -23,6 +24,7 @@
     "@types/node": "20.14.10",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
+    "@cloudflare/workers-types": "^4.20260617.1",
     "autoprefixer": "10.4.19",
     "cross-env": "^10.1.0",
     "eslint": "8.57.0",

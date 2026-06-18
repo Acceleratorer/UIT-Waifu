@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChatMessage } from "../types";
 import { DEFAULT_MODE, type ModeId } from "@/data/modes";
+import { readDefaultMode, writeDefaultMode } from "../preferences";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const CHAT_ENDPOINT =
@@ -40,8 +41,17 @@ export function useChat(): UseChatResult {
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<ModeId>(DEFAULT_MODE);
+  const [mode, setModeState] = useState<ModeId>(DEFAULT_MODE);
   const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    setModeState(readDefaultMode());
+  }, []);
+
+  const setMode = useCallback((nextMode: ModeId) => {
+    setModeState(nextMode);
+    writeDefaultMode(nextMode);
+  }, []);
 
   const stop = useCallback(() => {
     abortRef.current?.abort();

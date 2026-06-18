@@ -41,20 +41,22 @@ Goal: deploy the first working version of UIT Waifu.
 
 Core features:
 
-- [ ] Next.js app setup
-- [ ] Tailwind CSS setup
+- [x] Next.js app setup
+- [x] Tailwind CSS setup
 - [ ] ShadCN UI setup
-- [ ] Landing page
-- [ ] Chat page
-- [ ] Message input
-- [ ] Message list
-- [ ] Loading state
-- [ ] Markdown rendering
-- [ ] Code block rendering
-- [ ] Basic AI API route
-- [ ] Basic system prompt
-- [ ] Cloudflare Pages deployment
-- [ ] Public path: `accel.io.vn/waifu`
+- [x] Landing page
+- [x] Chat page
+- [x] Settings page
+- [x] Message input
+- [x] Message list
+- [x] Loading state
+- [x] Markdown rendering
+- [x] Code block rendering
+- [x] Basic AI API route
+- [x] Basic system prompt
+- [x] Cloudflare Pages routing and Functions wiring
+- [x] Public path prepared: `/waifu`
+- [ ] Production deployment at `accel.io.vn/waifu`
 
 Recommended routes:
 
@@ -66,10 +68,13 @@ Recommended routes:
 
 Success criteria:
 
-- Users can open `accel.io.vn/waifu`
-- Users can send a message
-- UIT Waifu can respond
-- Responses support Markdown and code blocks
+- [x] Local Pages runtime serves `/waifu`
+- [x] Local Pages runtime serves `/waifu/chat`
+- [x] Local Pages runtime serves `/waifu/settings`
+- [x] Chat request validation returns structured errors
+- [x] Responses support Markdown and code blocks
+- [ ] Production URL `https://accel.io.vn/waifu` is deployed and verified
+- [ ] Production chat response is verified with a real provider key
 
 ---
 

@@ -86,10 +86,15 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   }
 
   if (!upstream.ok || !upstream.body) {
+    const message =
+      upstream.status === 401 || upstream.status === 403
+        ? "Chat is temporarily unavailable. Provider authentication failed."
+        : `Chat provider returned an error (${upstream.status}).`;
+
     return jsonErrorResponse(
       502,
       "internal_error",
-      `Chat provider returned an error (${upstream.status}).`
+      message
     );
   }
 

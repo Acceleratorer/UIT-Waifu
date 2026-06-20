@@ -209,7 +209,10 @@ function call_anthropic(string $apiKey, string $model, string $mode, array $mess
     }
 
     if ($status < 200 || $status >= 300) {
-        json_error_response(500, 'internal_error', "Chat provider returned an error ($status).");
+        $message = $status === 401 || $status === 403
+            ? 'Chat is temporarily unavailable. Provider authentication failed.'
+            : "Chat provider returned an error ($status).";
+        json_error_response(500, 'internal_error', $message);
     }
 
     $decoded = json_decode($response, true);

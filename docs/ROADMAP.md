@@ -56,7 +56,7 @@ Core features:
 - [x] Basic system prompt
 - [x] Cloudflare Pages routing and Functions wiring
 - [x] Public path prepared: `/waifu`
-- [ ] Production deployment at `accel.io.vn/waifu`
+- [x] Production deployment at `accel.io.vn/waifu`
 
 Recommended routes:
 
@@ -73,7 +73,7 @@ Success criteria:
 - [x] Local Pages runtime serves `/waifu/settings`
 - [x] Chat request validation returns structured errors
 - [x] Responses support Markdown and code blocks
-- [ ] Production URL `https://accel.io.vn/waifu` is deployed and verified
+- [x] Production URL `https://accel.io.vn/waifu` is deployed and verified
 - [ ] Production chat response is verified with a real provider key
 
 ---

@@ -8,7 +8,8 @@ RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# DirectAdmin PHP adapter for the chat endpoint.
+# DirectAdmin PHP adapters for API endpoints.
+RewriteRule ^api/health$ api/health.php [L]
 RewriteRule ^api/chat$ api/chat.php [L]
 
 # Redirect exported pages with trailing slashes to their clean URL.

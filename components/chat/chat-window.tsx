@@ -8,7 +8,7 @@ import { useChat } from "@/features/chat/hooks/use-chat";
 import { MODES } from "@/data/modes";
 
 export function ChatWindow() {
-  const { messages, input, setInput, isStreaming, error, mode, setMode, send, stop } =
+  const { messages, input, setInput, isStreaming, error, mode, setMode, send, stop, clear } =
     useChat();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -31,11 +31,22 @@ export function ChatWindow() {
               {error}
             </p>
           )}
-          <div className="mb-2 flex items-center justify-between gap-2">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <ModeSelector value={mode} onChange={setMode} disabled={isStreaming} />
-            <span className="truncate text-xs text-foreground/40">
-              {MODES.find((m) => m.id === mode)?.description}
-            </span>
+            <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
+              <span className="hidden min-w-0 truncate text-xs text-foreground/40 sm:block">
+                {MODES.find((m) => m.id === mode)?.description}
+              </span>
+              {messages.length > 0 && (
+                <button
+                  type="button"
+                  onClick={clear}
+                  className="shrink-0 rounded-lg border border-foreground/15 px-3 py-1.5 text-xs font-medium text-foreground/70 transition hover:bg-foreground/5"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
           </div>
           <MessageInput
             value={input}

@@ -3,7 +3,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChatMessage } from "../types";
 import { DEFAULT_MODE, type ModeId } from "@/data/modes";
-import { readDefaultMode, writeDefaultMode } from "../preferences";
+import {
+  clearSessionMessages,
+  readDefaultMode,
+  readSessionMessages,
+  writeDefaultMode,
+  writeSessionMessages,
+} from "../preferences";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const CHAT_ENDPOINT =
@@ -34,6 +40,7 @@ interface UseChatResult {
   setMode: (mode: ModeId) => void;
   send: () => void;
   stop: () => void;
+  clear: () => void;
 }
 
 export function useChat(): UseChatResult {
@@ -42,11 +49,19 @@ export function useChat(): UseChatResult {
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mode, setModeState] = useState<ModeId>(DEFAULT_MODE);
+  const [hasLoadedSession, setHasLoadedSession] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     setModeState(readDefaultMode());
+    setMessages(readSessionMessages());
+    setHasLoadedSession(true);
   }, []);
+
+  useEffect(() => {
+    if (!hasLoadedSession) return;
+    writeSessionMessages(messages);
+  }, [hasLoadedSession, messages]);
 
   const setMode = useCallback((nextMode: ModeId) => {
     setModeState(nextMode);
@@ -57,6 +72,15 @@ export function useChat(): UseChatResult {
     abortRef.current?.abort();
     abortRef.current = null;
     setIsStreaming(false);
+  }, []);
+
+  const clear = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setMessages([]);
+    setError(null);
+    setIsStreaming(false);
+    clearSessionMessages();
   }, []);
 
   const send = useCallback(() => {
@@ -156,5 +180,16 @@ export function useChat(): UseChatResult {
     })();
   }, [input, isStreaming, messages, mode]);
 
-  return { messages, input, setInput, isStreaming, error, mode, setMode, send, stop };
+  return {
+    messages,
+    input,
+    setInput,
+    isStreaming,
+    error,
+    mode,
+    setMode,
+    send,
+    stop,
+    clear,
+  };
 }

@@ -51,7 +51,7 @@ Memory should make the companion more useful without being creepy. See [docs/DAT
 
 | Feature | Status | Notes |
 |---|---|---|
-| Short-term chat context | [~] | Current session window |
+| Short-term chat context | [~] | Current browser session persists across refresh |
 | Saved user preferences | [ ] | Name, language, study goals |
 | Course list | [ ] | What the student is taking |
 | Uploaded document history | [ ] | What's been ingested for RAG |

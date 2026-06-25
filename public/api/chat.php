@@ -4,6 +4,7 @@ declare(strict_types=1);
 const MAX_CHAT_MESSAGES = 50;
 const MAX_CHAT_CONTENT_CHARS = 12000;
 const DEFAULT_ANTHROPIC_MODEL = 'claude-haiku-4-5';
+const DEFAULT_ANTHROPIC_BASE_URL = 'https://api.anthropic.com';
 const ANTHROPIC_VERSION = '2023-06-01';
 
 function json_error_response(int $status, string $code, string $message, array $details = [])
@@ -41,6 +42,52 @@ function config_value(array $config, string $key): string
     $lowerKey = strtolower($key);
     $value = $config[$key] ?? $config[$lowerKey] ?? '';
     return is_string($value) ? $value : '';
+}
+
+function anthropic_key(array $config): string
+{
+    $apiKey = config_value($config, 'ANTHROPIC_API_KEY');
+    if ($apiKey !== '') {
+        return $apiKey;
+    }
+
+    return config_value($config, 'ANTHROPIC_AUTH_TOKEN');
+}
+
+function anthropic_model(array $config): string
+{
+    $model = trim(config_value($config, 'ANTHROPIC_MODEL'));
+    if ($model === 'opus') {
+        $opusModel = config_value($config, 'ANTHROPIC_DEFAULT_OPUS_MODEL');
+        return $opusModel !== '' ? $opusModel : $model;
+    }
+
+    if ($model === 'sonnet') {
+        $sonnetModel = config_value($config, 'ANTHROPIC_DEFAULT_SONNET_MODEL');
+        return $sonnetModel !== '' ? $sonnetModel : $model;
+    }
+
+    if ($model === 'haiku') {
+        $haikuModel = config_value($config, 'ANTHROPIC_DEFAULT_HAIKU_MODEL');
+        return $haikuModel !== '' ? $haikuModel : $model;
+    }
+
+    if ($model !== '') {
+        return $model;
+    }
+
+    $haikuModel = config_value($config, 'ANTHROPIC_DEFAULT_HAIKU_MODEL');
+    return $haikuModel !== '' ? $haikuModel : DEFAULT_ANTHROPIC_MODEL;
+}
+
+function anthropic_messages_url(array $config): string
+{
+    $baseUrl = rtrim(config_value($config, 'ANTHROPIC_BASE_URL'), '/');
+    if ($baseUrl === '') {
+        $baseUrl = DEFAULT_ANTHROPIC_BASE_URL;
+    }
+
+    return str_ends_with($baseUrl, '/v1') ? $baseUrl . '/messages' : $baseUrl . '/v1/messages';
 }
 
 function compose_system_prompt(string $mode): string
@@ -172,7 +219,7 @@ function read_chat_request(): array
     return ['mode' => $mode, 'messages' => $validatedMessages];
 }
 
-function call_anthropic(string $apiKey, string $model, string $mode, array $messages): string
+function call_anthropic(string $url, string $apiKey, string $model, string $mode, array $messages): string
 {
     if (!function_exists('curl_init')) {
         json_error_response(500, 'internal_error', 'Chat is not configured. PHP cURL is unavailable.');
@@ -186,7 +233,7 @@ function call_anthropic(string $apiKey, string $model, string $mode, array $mess
         'messages' => $messages,
     ];
 
-    $ch = curl_init('https://api.anthropic.com/v1/messages');
+    $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_RETURNTRANSFER => true,
@@ -244,14 +291,15 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $privateConfig = read_private_config();
-$apiKey = config_value($privateConfig, 'ANTHROPIC_API_KEY');
+$apiKey = anthropic_key($privateConfig);
 if ($apiKey === '') {
-    json_error_response(500, 'internal_error', 'Chat is not configured. Missing Anthropic API key.');
+    json_error_response(500, 'internal_error', 'Chat is not configured. Missing Anthropic API key or auth token.');
 }
 
-$model = config_value($privateConfig, 'ANTHROPIC_MODEL');
+$model = anthropic_model($privateConfig);
+$url = anthropic_messages_url($privateConfig);
 $request = read_chat_request();
-$reply = call_anthropic($apiKey, $model, $request['mode'], $request['messages']);
+$reply = call_anthropic($url, $apiKey, $model, $request['mode'], $request['messages']);
 
 header('Content-Type: text/event-stream; charset=utf-8');
 header('Cache-Control: no-cache');

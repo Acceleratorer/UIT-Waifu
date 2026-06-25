@@ -13,6 +13,10 @@ describe("chat providers", () => {
       resolveChatProvider({ ANTHROPIC_API_KEY: "test-key" }),
       "anthropic"
     );
+    assert.equal(
+      resolveChatProvider({ ANTHROPIC_AUTH_TOKEN: "test-token" }),
+      "anthropic"
+    );
   });
 
   it("keeps OpenRouter as the default provider", () => {
@@ -37,7 +41,7 @@ describe("chat providers", () => {
   it("reports missing provider keys without exposing configured secrets", () => {
     assert.equal(
       getMissingProviderKeyMessage("anthropic", {}),
-      "Chat is not configured. Missing Anthropic API key."
+      "Chat is not configured. Missing Anthropic API key or auth token."
     );
     assert.equal(
       getMissingProviderKeyMessage("openrouter", {}),
@@ -65,6 +69,43 @@ describe("chat providers", () => {
     assert.equal(body.stream, true);
     assert.equal(body.system, "system prompt");
     assert.deepEqual(body.messages, [{ role: "user", content: "hello" }]);
+  });
+
+  it("builds an Anthropic-compatible proxy request", () => {
+    const request = buildProviderRequest(
+      "anthropic",
+      {
+        ANTHROPIC_AUTH_TOKEN: "test-token",
+        ANTHROPIC_BASE_URL: "https://api.example.test",
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: "proxy-haiku",
+      },
+      "system prompt",
+      [{ role: "user", content: "hello" }]
+    );
+
+    assert.equal(request.url, "https://api.example.test/v1/messages");
+
+    const headers = request.init.headers as Record<string, string>;
+    assert.equal(headers["x-api-key"], "test-token");
+
+    const body = JSON.parse(String(request.init.body));
+    assert.equal(body.model, "proxy-haiku");
+  });
+
+  it("resolves Anthropic model aliases for compatible proxies", () => {
+    const request = buildProviderRequest(
+      "anthropic",
+      {
+        ANTHROPIC_AUTH_TOKEN: "test-token",
+        ANTHROPIC_MODEL: "opus",
+        ANTHROPIC_DEFAULT_OPUS_MODEL: "proxy-opus",
+      },
+      "system prompt",
+      [{ role: "user", content: "hello" }]
+    );
+
+    const body = JSON.parse(String(request.init.body));
+    assert.equal(body.model, "proxy-opus");
   });
 
   it("extracts OpenRouter streaming deltas", () => {

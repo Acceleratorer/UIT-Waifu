@@ -49,11 +49,16 @@ AI_PROVIDER=anthropic
 OPENAI_API_KEY=
 OPENROUTER_API_KEY=
 ANTHROPIC_API_KEY=
+ANTHROPIC_AUTH_TOKEN=
+ANTHROPIC_BASE_URL=
 EMBEDDING_MODEL=text-embedding-3-small
 
 # Chat provider models
 OPENROUTER_MODEL=google/gemini-2.0-flash-001
 ANTHROPIC_MODEL=claude-haiku-4-5
+ANTHROPIC_DEFAULT_OPUS_MODEL=
+ANTHROPIC_DEFAULT_SONNET_MODEL=
+ANTHROPIC_DEFAULT_HAIKU_MODEL=
 APP_URL=https://accel.io.vn/waifu
 ```
 
@@ -62,6 +67,8 @@ Rules:
 - `NEXT_PUBLIC_*` variables are visible in the browser bundle. Never put a secret behind that prefix.
 - `SUPABASE_SERVICE_ROLE_KEY` and AI provider keys are server-only. They must only be read in Pages Functions, Route Handlers, or server components.
 - `AI_PROVIDER` can be `anthropic` or `openrouter`. UIT Waifu uses Anthropic Claude for chat by default; OpenRouter remains available as a fallback provider.
+- `ANTHROPIC_AUTH_TOKEN` and `ANTHROPIC_BASE_URL` support Anthropic-compatible proxies. `ANTHROPIC_API_KEY` takes precedence when both key names are set.
+- `ANTHROPIC_MODEL` can be a full model id or the alias `opus`, `sonnet`, or `haiku` when the matching `ANTHROPIC_DEFAULT_*_MODEL` variable is set.
 - `DATABASE_URL` points at the Supabase Postgres instance; pgvector lives in the same database, so no separate vector URL is needed.
 - Never commit `.env.local`. On DirectAdmin, keep server-only values in the private `.uit-waifu.env.php` file outside `public_html`. On Cloudflare Pages, set production values in the Pages dashboard.
 

@@ -6,14 +6,53 @@ export interface ChatProviderEnv {
   AI_PROVIDER?: string;
   OPENROUTER_API_KEY?: string;
   OPENROUTER_MODEL?: string;
+  ANTHROPIC_AUTH_TOKEN?: string;
   ANTHROPIC_API_KEY?: string;
+  ANTHROPIC_BASE_URL?: string;
   ANTHROPIC_MODEL?: string;
+  ANTHROPIC_DEFAULT_OPUS_MODEL?: string;
+  ANTHROPIC_DEFAULT_SONNET_MODEL?: string;
+  ANTHROPIC_DEFAULT_HAIKU_MODEL?: string;
   APP_URL?: string;
 }
 
 const DEFAULT_OPENROUTER_MODEL = "google/gemini-2.0-flash-001";
 const DEFAULT_ANTHROPIC_MODEL = "claude-haiku-4-5";
+const DEFAULT_ANTHROPIC_BASE_URL = "https://api.anthropic.com";
 const ANTHROPIC_VERSION = "2023-06-01";
+
+function getAnthropicKey(env: ChatProviderEnv): string {
+  return env.ANTHROPIC_API_KEY || env.ANTHROPIC_AUTH_TOKEN || "";
+}
+
+function resolveAnthropicMessagesUrl(env: ChatProviderEnv): string {
+  const baseUrl = (env.ANTHROPIC_BASE_URL || DEFAULT_ANTHROPIC_BASE_URL).replace(
+    /\/+$/,
+    ""
+  );
+  return baseUrl.endsWith("/v1")
+    ? `${baseUrl}/messages`
+    : `${baseUrl}/v1/messages`;
+}
+
+function resolveAnthropicModel(env: ChatProviderEnv): string {
+  const requested = env.ANTHROPIC_MODEL?.trim();
+  if (requested === "opus" && env.ANTHROPIC_DEFAULT_OPUS_MODEL) {
+    return env.ANTHROPIC_DEFAULT_OPUS_MODEL;
+  }
+  if (requested === "sonnet" && env.ANTHROPIC_DEFAULT_SONNET_MODEL) {
+    return env.ANTHROPIC_DEFAULT_SONNET_MODEL;
+  }
+  if (requested === "haiku" && env.ANTHROPIC_DEFAULT_HAIKU_MODEL) {
+    return env.ANTHROPIC_DEFAULT_HAIKU_MODEL;
+  }
+
+  return (
+    requested ||
+    env.ANTHROPIC_DEFAULT_HAIKU_MODEL ||
+    DEFAULT_ANTHROPIC_MODEL
+  );
+}
 
 export function resolveChatProvider(env: ChatProviderEnv): ChatProvider | null {
   const requested = env.AI_PROVIDER?.toLowerCase().trim();
@@ -22,7 +61,7 @@ export function resolveChatProvider(env: ChatProviderEnv): ChatProvider | null {
   if (requested === "anthropic" || requested === "claude") return "anthropic";
   if (requested) return null;
 
-  if (env.ANTHROPIC_API_KEY && !env.OPENROUTER_API_KEY) return "anthropic";
+  if (getAnthropicKey(env) && !env.OPENROUTER_API_KEY) return "anthropic";
   return "openrouter";
 }
 
@@ -30,8 +69,8 @@ export function getMissingProviderKeyMessage(
   provider: ChatProvider,
   env: ChatProviderEnv
 ): string | null {
-  if (provider === "anthropic" && !env.ANTHROPIC_API_KEY) {
-    return "Chat is not configured. Missing Anthropic API key.";
+  if (provider === "anthropic" && !getAnthropicKey(env)) {
+    return "Chat is not configured. Missing Anthropic API key or auth token.";
   }
 
   if (provider === "openrouter" && !env.OPENROUTER_API_KEY) {
@@ -49,16 +88,16 @@ export function buildProviderRequest(
 ): { url: string; init: RequestInit } {
   if (provider === "anthropic") {
     return {
-      url: "https://api.anthropic.com/v1/messages",
+      url: resolveAnthropicMessagesUrl(env),
       init: {
         method: "POST",
         headers: {
-          "x-api-key": env.ANTHROPIC_API_KEY ?? "",
+          "x-api-key": getAnthropicKey(env),
           "anthropic-version": ANTHROPIC_VERSION,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: env.ANTHROPIC_MODEL || DEFAULT_ANTHROPIC_MODEL,
+          model: resolveAnthropicModel(env),
           max_tokens: 1024,
           stream: true,
           system: systemPrompt,

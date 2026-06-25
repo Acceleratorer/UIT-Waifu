@@ -3,6 +3,7 @@ import { BASE_PERSONALITY, SAFETY_FOOTER } from "./base";
 import { STUDY_PROMPT } from "./study";
 import { CODE_PROMPT } from "./code";
 import { DOCUMENT_PROMPT } from "./document";
+import { REVISION_PROMPT } from "./revision";
 import { PROJECT_PROMPT } from "./project";
 import { COMPANION_PROMPT } from "./companion";
 
@@ -11,7 +12,7 @@ const MODE_TEMPLATES: Record<ModeId, string> = {
   study: STUDY_PROMPT,
   code: CODE_PROMPT,
   document: DOCUMENT_PROMPT,
-  revision: STUDY_PROMPT,
+  revision: REVISION_PROMPT,
   project: PROJECT_PROMPT,
   companion: COMPANION_PROMPT,
 };

@@ -21,7 +21,7 @@ export function ModeSelector({ value, onChange, disabled }: ModeSelectorProps) {
         disabled={disabled}
         onChange={(e) => onChange(e.target.value as ModeId)}
         title={active?.description}
-        className="rounded-xl border border-foreground/15 bg-background px-3 py-1.5 text-sm outline-none transition focus:border-pink-400 disabled:opacity-50"
+        className="rounded-xl border border-pink-200/45 bg-white/65 px-3 py-2 text-sm outline-none shadow-sm backdrop-blur-md transition focus:border-pink-400 disabled:opacity-50 dark:border-white/10 dark:bg-white/10"
       >
         {MODES.map((m) => (
           <option key={m.id} value={m.id}>

@@ -54,7 +54,7 @@ Each mode is a separate file in `lib/prompts/` and maps to an id in `data/modes.
 | `study`     | `study.ts`    | Step-by-step tutoring, hints before answers. |
 | `code`      | `code.ts`     | Debug, explain, refactor, review code.       |
 | `document`  | `document.ts` | Answer strictly from retrieved document context. |
-| `revision`  | `study.ts`    | Exam revision: summaries, quizzes, flashcards. |
+| `revision`  | `revision.ts` | Exam revision: summaries, quizzes, flashcards. |
 | `project`   | `project.ts`  | Study plans and project roadmaps.            |
 | `companion` | `companion.ts`| Lightweight friendly chat, more personality. |
 
@@ -90,6 +90,17 @@ Cite the source snippet you used.
 ```
 
 The retrieved chunks are injected after this template as a clearly delimited context block.
+
+### Exam revision (`revision.ts`)
+
+```txt
+You are in exam revision mode.
+Turn course material into concise summaries, flashcards, quizzes, and likely weak spots.
+Ask what exam, topic, or deadline the student is preparing for when it is unclear.
+Quiz one question at a time when the student asks to practice.
+Explain why an answer is right or wrong, then give a small follow-up drill.
+Do not claim exact exam coverage unless the user provides official material.
+```
 
 ---
 

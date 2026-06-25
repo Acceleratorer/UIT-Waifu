@@ -19,7 +19,7 @@ export function SettingsPanel() {
   return (
     <section className="w-full max-w-2xl">
       <div className="border-b border-foreground/10 pb-5">
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+        <h1 className="text-3xl font-bold">Settings</h1>
       </div>
 
       <div className="mt-6 space-y-6">
@@ -28,7 +28,7 @@ export function SettingsPanel() {
           <select
             value={defaultMode}
             onChange={(event) => handleModeChange(event.target.value as ModeId)}
-            className="mt-2 w-full rounded-xl border border-foreground/15 bg-background px-3 py-2 outline-none transition focus:border-pink-400"
+            className="mt-2 w-full rounded-xl border border-pink-200/45 bg-white/65 px-3 py-2 outline-none shadow-sm backdrop-blur-md transition focus:border-pink-400 dark:border-white/10 dark:bg-white/10"
           >
             {MODES.map((mode) => (
               <option key={mode.id} value={mode.id}>

@@ -3,24 +3,27 @@ import { ChatWindow } from "@/components/chat/chat-window";
 
 export default function ChatPage() {
   return (
-    <div className="flex h-screen flex-col">
-      <header className="flex items-center justify-between border-b border-foreground/10 px-4 py-3">
-        <Link href="/" className="font-semibold tracking-tight">
+    <div className="stage-surface flex h-screen flex-col overflow-hidden">
+      <header className="z-10 flex items-center justify-between px-3 py-2 md:px-4 md:py-3">
+        <Link
+          href="/"
+          className="rounded-xl border border-white/40 bg-white/60 px-3 py-2 text-sm font-semibold shadow-sm backdrop-blur-md transition hover:bg-white/75 dark:border-white/10 dark:bg-black/25 dark:hover:bg-black/35"
+        >
           UIT Waifu
         </Link>
         <nav className="flex items-center gap-2">
           <Link
             href="/settings"
-            className="rounded-full border border-foreground/15 px-3 py-0.5 text-xs font-medium text-foreground/70 transition hover:bg-foreground/5"
+            className="rounded-xl border border-white/40 bg-white/55 px-3 py-2 text-xs font-medium text-foreground/70 shadow-sm backdrop-blur-md transition hover:bg-white/70 dark:border-white/10 dark:bg-black/25 dark:hover:bg-black/35"
           >
             Settings
           </Link>
-          <span className="rounded-full border border-pink-300/40 bg-pink-500/10 px-3 py-0.5 text-xs font-medium text-pink-500">
+          <span className="rounded-xl border border-pink-300/45 bg-pink-500/15 px-3 py-2 text-xs font-semibold text-pink-600 shadow-sm backdrop-blur-md dark:text-pink-200">
             Chat
           </span>
         </nav>
       </header>
-      <div className="flex-1 overflow-hidden">
+      <div className="min-h-0 flex-1 overflow-hidden px-3 pb-3 md:px-4 md:pb-4">
         <ChatWindow />
       </div>
     </div>

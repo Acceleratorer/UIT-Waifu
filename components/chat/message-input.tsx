@@ -27,34 +27,36 @@ export function MessageInput({
   }
 
   return (
-    <div className="flex items-end gap-2 rounded-2xl border border-foreground/15 bg-background p-2 focus-within:border-pink-400">
+    <div className="relative overflow-hidden rounded-xl border border-pink-200/45 bg-pink-50/65 shadow-sm backdrop-blur-md focus-within:border-pink-400 dark:border-white/10 dark:bg-pink-950/25">
       <textarea
         ref={textareaRef}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
-        rows={1}
-        placeholder="Message UIT Waifu…"
-        className="max-h-40 flex-1 resize-none bg-transparent px-2 py-1.5 outline-none placeholder:text-foreground/40"
+        rows={3}
+        placeholder="Message UIT Waifu..."
+        className="max-h-40 min-h-[92px] w-full resize-none bg-transparent px-3 py-3 pb-14 text-sm outline-none placeholder:text-foreground/40"
       />
-      {isStreaming ? (
-        <button
-          type="button"
-          onClick={onStop}
-          className="rounded-xl border border-foreground/15 px-4 py-2 font-medium transition hover:bg-foreground/5"
-        >
-          Stop
-        </button>
-      ) : (
-        <button
-          type="button"
-          onClick={onSend}
-          disabled={!value.trim()}
-          className="rounded-xl bg-pink-500 px-4 py-2 font-medium text-white transition hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          Send
-        </button>
-      )}
+      <div className="absolute bottom-2 right-2">
+        {isStreaming ? (
+          <button
+            type="button"
+            onClick={onStop}
+            className="rounded-md border border-foreground/15 bg-white/60 px-4 py-2 text-sm font-medium transition hover:bg-white/80 active:scale-95 dark:bg-white/10 dark:hover:bg-white/15"
+          >
+            Stop
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onSend}
+            disabled={!value.trim()}
+            className="rounded-md bg-pink-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-pink-600 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Send
+          </button>
+        )}
+      </div>
     </div>
   );
 }

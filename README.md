@@ -70,6 +70,77 @@ The MVP should be lightweight and web-first. Advanced avatar, voice, Live2D, VRM
 
 ---
 
+## Design Direction And User Flow
+
+UIT Waifu should feel less like a plain chatbot page and more like a small companion workspace. The main screen should combine a character stage, a practical chat panel, and fast mode switching so the user can move from casual conversation into study, coding, revision, document work, or project planning without leaving the flow.
+
+Local reference projects for longer design work:
+
+```txt
+D:\Code\Github\sanbaka
+D:\Code\Github\airi
+```
+
+Use `sanbaka` as the visual reference for:
+
+- Stage-like presentation with a strong character presence.
+- Layered backgrounds, soft motion, and expressive atmosphere.
+- Character-forward layouts where the avatar is a first-class part of the app.
+- Playful transitions and interaction polish that make the product feel alive.
+
+Use `airi` as the product and interaction reference for:
+
+- AI companion structure and long-running assistant behavior.
+- Chat ergonomics, mode routing, settings, and memory direction.
+- Agent-like workflows that can grow from a simple chat MVP into a richer companion.
+- Practical companion UX where personality supports usefulness instead of replacing it.
+
+Keep UIT Waifu independent from both references. Borrow design language, interaction ideas, and product flow, but do not copy private assets, project secrets, or unrelated architecture.
+
+### Target Experience Flow
+
+```txt
+Visitor opens /waifu
+  -> sees the UIT Waifu identity, character signal, and clear chat entry
+  -> starts chat or chooses a task mode
+  -> lands in the companion workspace
+  -> sees character stage on one side and focused chat on the other
+  -> sends message, code, study question, or document question
+  -> app builds mode-specific prompt and short-term context
+  -> AI streams a useful answer with markdown/code formatting
+  -> user can revise, switch modes, save preferences, or continue the conversation
+```
+
+### Screen Flow
+
+```mermaid
+flowchart TD
+  A["Landing Page /waifu"] --> B["Chat Workspace /waifu/chat"]
+  A --> C["Settings /waifu/settings"]
+  B --> D["Mode Selector"]
+  D --> E["General Chat"]
+  D --> F["Study Tutor"]
+  D --> G["Code Debugging"]
+  D --> H["Document Q&A"]
+  D --> I["Exam Revision"]
+  D --> J["Project Planning"]
+  B --> K["Character Stage"]
+  B --> L["Message Composer"]
+  L --> M["Streaming Assistant Response"]
+  C --> N["Provider, Theme, and Preference Settings"]
+```
+
+### Interface Principles
+
+- The avatar should be visible enough to define the product, but the chat must remain fast and readable.
+- The landing page should immediately show what UIT Waifu is and lead directly into chat.
+- The chat screen should feel like a compact control room: stage, mode, messages, composer, and settings all easy to reach.
+- Modes should change the assistant's behavior and starter prompts, not just the label in the UI.
+- Motion should be subtle: idle avatar movement, scan lines, typing state, and soft transitions are enough for the MVP.
+- Mobile should prioritize the conversation while preserving a small character/stage signal.
+
+---
+
 ## Core MVP
 
 The first production-ready version should include:
@@ -326,6 +397,51 @@ Data Layer
 
 ---
 
+### MVP Architecture Visualization
+
+```mermaid
+flowchart LR
+  U["Student"] --> W["Browser at accel.io.vn/waifu"]
+  W --> N["Next.js Static Frontend"]
+  N --> L["Landing Page"]
+  N --> C["Chat Workspace"]
+  N --> S["Settings"]
+  C --> M["Mode + Prompt Composer"]
+  M --> API["/api/chat adapter"]
+  API --> P["LLM Provider"]
+  P --> API
+  API --> C
+  C --> A["Character Stage"]
+  C --> H["Local Session Preferences"]
+
+  subgraph Later["Later Phases"]
+    DB["Supabase PostgreSQL"]
+    V["pgvector Retrieval"]
+    F["File Storage"]
+    Mem["Long-term Memory"]
+    Auth["Auth"]
+  end
+
+  API -. "Phase 3+" .-> DB
+  API -. "Phase 4+" .-> V
+  API -. "Document uploads" .-> F
+  API -. "Personalization" .-> Mem
+  W -. "Login later" .-> Auth
+```
+
+### Current Phase 1 Deployment Shape
+
+```txt
+GitHub main
+  -> Next.js export with base path /waifu
+  -> DirectAdmin public_html/waifu
+  -> Static pages and assets
+  -> PHP API adapter under /waifu/api
+  -> Private provider config outside public_html
+```
+
+---
+
 ## Database Strategy
 
 UIT Waifu should use a hybrid database architecture.
@@ -458,6 +574,8 @@ Recommended deployment path:
 ## Documentation
 
 Detailed working documents:
+
+- [Reference Projects](./docs/REFERENCE_PROJECTS.md) - architecture and UX lessons from open-source AI companion and VTuber projects
 
 - [Features](./docs/FEATURES.md) — detailed feature catalogue by pillar
 - [Roadmap](./docs/ROADMAP.md) — phases and milestones

@@ -28,8 +28,35 @@ function read_private_config(): array
         return [];
     }
 
-    $config = require $configPath;
-    return is_array($config) ? $config : [];
+    $rawConfig = file_get_contents($configPath);
+    if (!is_string($rawConfig)) {
+        return [];
+    }
+
+    $trimmedConfig = ltrim($rawConfig, "\xEF\xBB\xBF \t\r\n");
+    if (strpos($trimmedConfig, '<?php') === 0) {
+        $config = require $configPath;
+    } else {
+        $config = json_decode($rawConfig, true);
+    }
+
+    if (!is_array($config)) {
+        return [];
+    }
+
+    if (isset($config['env']) && is_array($config['env'])) {
+        $config = array_merge($config, $config['env']);
+    }
+
+    if (
+        isset($config['model']) &&
+        is_string($config['model']) &&
+        !isset($config['ANTHROPIC_MODEL'])
+    ) {
+        $config['ANTHROPIC_MODEL'] = $config['model'];
+    }
+
+    return $config;
 }
 
 function config_value(array $config, string $key): string

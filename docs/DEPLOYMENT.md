@@ -142,6 +142,10 @@ The chat adapter reads private provider config from `.uit-waifu.env.php` one
 directory above `public_html`. Keep that file out of git and out of
 web-accessible paths.
 
+The private config may be either a PHP file returning a flat array of
+environment keys, or the JSON-shaped config used by local agent tooling with an
+`env` object and `model` alias. The adapter normalizes both formats at runtime.
+
 ---
 
 ## Supabase Setup

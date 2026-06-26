@@ -12,11 +12,35 @@ export interface Mode {
   label: string;
   description: string;
   starters: StarterPrompt[];
+  runtime: ModeRuntime;
 }
 
 export interface StarterPrompt {
   label: string;
   prompt: string;
+}
+
+export type ModeRetrievalPolicy = "none" | "paste-only" | "future-rag";
+export type ModeToolPolicy = "none" | "read-only" | "future-actions";
+export type AvatarMood =
+  | "ready"
+  | "focused"
+  | "analytical"
+  | "curious"
+  | "encouraging"
+  | "strategic"
+  | "warm";
+
+export interface ModeRuntime {
+  behavior: string;
+  outputStyle: string;
+  retrieval: ModeRetrievalPolicy;
+  tools: ModeToolPolicy;
+  avatar: {
+    mood: AvatarMood;
+    expression: string;
+    motion: string;
+  };
 }
 
 export const DEFAULT_MODE: ModeId = "general";
@@ -38,6 +62,17 @@ export const MODES: Mode[] = [
           "Explain this concept in simple terms, then give one concrete example: ",
       },
     ],
+    runtime: {
+      behavior: "Balanced companion support",
+      outputStyle: "Clear, friendly, practical answers with examples when useful.",
+      retrieval: "none",
+      tools: "none",
+      avatar: {
+        mood: "ready",
+        expression: "neutral",
+        motion: "idle",
+      },
+    },
   },
   {
     id: "study",
@@ -50,6 +85,11 @@ export const MODES: Mode[] = [
           "Teach me this topic step by step. Start with what I need to know first: ",
       },
       {
+        label: "Generate examples",
+        prompt:
+          "Give me three concrete examples for this concept. Start simple, then show a realistic UIT-style example: ",
+      },
+      {
         label: "Give practice questions",
         prompt:
           "Generate five practice questions for this topic. Start easy, then increase difficulty: ",
@@ -59,7 +99,23 @@ export const MODES: Mode[] = [
         prompt:
           "Give me a hint first, then wait before revealing the full solution: ",
       },
+      {
+        label: "Summarize lesson",
+        prompt:
+          "Summarize this lesson into key ideas, formulas or definitions, common traps, and a short self-check quiz:\n\n",
+      },
     ],
+    runtime: {
+      behavior: "Tutor with hints before full answers",
+      outputStyle: "Step-by-step explanations, examples, and short checks for understanding.",
+      retrieval: "paste-only",
+      tools: "read-only",
+      avatar: {
+        mood: "encouraging",
+        expression: "thinking",
+        motion: "focus",
+      },
+    },
   },
   {
     id: "code",
@@ -81,7 +137,28 @@ export const MODES: Mode[] = [
         prompt:
           "Analyze the time and space complexity of this solution, then suggest one improvement if useful:\n\n",
       },
+      {
+        label: "Refactor safely",
+        prompt:
+          "Refactor this code with the smallest safe improvement. Explain what changed and preserve behavior unless I ask otherwise:\n\n",
+      },
+      {
+        label: "Review SQL",
+        prompt:
+          "Review this SQL query for correctness, readability, indexes, and obvious performance issues. Suggest a safer version if needed:\n\n",
+      },
     ],
+    runtime: {
+      behavior: "Root-cause debugging and code review",
+      outputStyle: "Precise analysis, fenced code blocks, minimal fixes, SQL notes, and complexity notes.",
+      retrieval: "paste-only",
+      tools: "read-only",
+      avatar: {
+        mood: "analytical",
+        expression: "focused",
+        motion: "focus",
+      },
+    },
   },
   {
     id: "document",
@@ -99,6 +176,17 @@ export const MODES: Mode[] = [
           "Based only on the document text I paste, answer my question and say when the answer is not present:\n\nQuestion: ",
       },
     ],
+    runtime: {
+      behavior: "Grounded document question answering",
+      outputStyle: "Source-aware answers that say when the provided material is insufficient.",
+      retrieval: "future-rag",
+      tools: "read-only",
+      avatar: {
+        mood: "focused",
+        expression: "reading",
+        motion: "focus",
+      },
+    },
   },
   {
     id: "revision",
@@ -121,6 +209,17 @@ export const MODES: Mode[] = [
           "Create a one-page exam revision sheet for this topic with formulas, traps, and examples: ",
       },
     ],
+    runtime: {
+      behavior: "Exam prep coach",
+      outputStyle: "Condensed summaries, quizzes, flashcards, and weak-spot drills.",
+      retrieval: "paste-only",
+      tools: "read-only",
+      avatar: {
+        mood: "focused",
+        expression: "thinking",
+        motion: "spark",
+      },
+    },
   },
   {
     id: "project",
@@ -138,6 +237,17 @@ export const MODES: Mode[] = [
           "Break this project into milestones, tasks, risks, and what I should do today:\n\n",
       },
     ],
+    runtime: {
+      behavior: "Planning partner",
+      outputStyle: "Milestones, next actions, risks, and realistic sequencing.",
+      retrieval: "paste-only",
+      tools: "future-actions",
+      avatar: {
+        mood: "strategic",
+        expression: "confident",
+        motion: "idle",
+      },
+    },
   },
   {
     id: "companion",
@@ -155,10 +265,25 @@ export const MODES: Mode[] = [
           "Help me reset my focus in five minutes, then pick a simple study task to start.",
       },
     ],
+    runtime: {
+      behavior: "Friendly check-in and focus support",
+      outputStyle: "Warm, concise, supportive replies that still move the user forward.",
+      retrieval: "none",
+      tools: "none",
+      avatar: {
+        mood: "warm",
+        expression: "happy",
+        motion: "idle",
+      },
+    },
   },
 ];
 
 export const MODE_IDS: ModeId[] = MODES.map((m) => m.id);
+
+export function getModeById(id: ModeId): Mode {
+  return MODES.find((m) => m.id === id) ?? MODES[0];
+}
 
 export function isModeId(value: unknown): value is ModeId {
   return typeof value === "string" && (MODE_IDS as string[]).includes(value);

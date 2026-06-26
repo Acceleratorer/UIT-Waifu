@@ -236,3 +236,28 @@ All request bodies are validated with Zod schemas in `lib/validators/`. A valida
 ## Versioning
 
 The API is unversioned during MVP. Breaking changes before `1.0` are tracked in commit history. After `1.0`, breaking changes move under `/api/v2/...`.
+
+---
+
+## Reference-Informed API Direction
+
+The reference stack study in [REFERENCE_STACKS.md](./REFERENCE_STACKS.md) points toward a provider-neutral runtime API. Keep the current `/api/chat` surface small and use explicit event types instead of provider-specific payloads.
+
+Streaming event names should remain stable across providers:
+
+```txt
+delta       assistant text chunk
+state       runtime status such as thinking, streaming, speaking, or error
+avatar      expression, motion, gaze, or lip-sync hints
+source      RAG citation or retrieved chunk metadata
+memory      user-approved memory read or write notice
+done        stream completed
+error       typed failure visible to the client
+```
+
+Rules:
+
+- Chat text, avatar state, RAG sources, memory changes, and tool results must be different fields or events.
+- Voice endpoints should be separate from `/api/chat` unless they only submit transcribed text.
+- Tool execution endpoints require authentication, rate limits, validation, and audit logs before they are exposed.
+- External integrations such as Discord, Telegram, Twitch, or desktop clients should call the same normalized API instead of duplicating provider logic.

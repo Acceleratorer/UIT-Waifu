@@ -6,6 +6,10 @@ import {
   getMissingProviderKeyMessage,
   resolveChatProvider,
 } from "../../lib/ai/providers";
+import {
+  parseChatStreamData,
+  serializeChatStreamEvent,
+} from "../../lib/ai/stream-events";
 
 describe("chat providers", () => {
   it("defaults to Anthropic when only an Anthropic key is configured", () => {
@@ -133,5 +137,77 @@ describe("chat providers", () => {
       }),
       ""
     );
+  });
+
+  it("serializes normalized chat stream events", () => {
+    assert.equal(
+      serializeChatStreamEvent({ type: "delta", delta: "Hello" }),
+      'data: {"type":"delta","delta":"Hello"}\n\n'
+    );
+    assert.equal(
+      serializeChatStreamEvent({ type: "done" }),
+      'data: {"type":"done"}\n\n'
+    );
+  });
+
+  it("parses normalized and legacy chat stream events", () => {
+    assert.deepEqual(
+      parseChatStreamData('{"type":"delta","delta":"Hello"}'),
+      { type: "delta", delta: "Hello" }
+    );
+    assert.deepEqual(parseChatStreamData('{"delta":"Hello"}'), {
+      type: "delta",
+      delta: "Hello",
+    });
+    assert.deepEqual(parseChatStreamData("[DONE]"), { type: "done" });
+    assert.equal(parseChatStreamData("not json"), null);
+  });
+
+  it("parses typed runtime stream events", () => {
+    assert.deepEqual(parseChatStreamData('{"type":"state","state":"thinking"}'), {
+      type: "state",
+      state: "thinking",
+      message: undefined,
+    });
+    assert.deepEqual(
+      parseChatStreamData(
+        '{"type":"avatar","state":"speaking","expression":"happy","intensity":0.8,"source":"assistant"}'
+      ),
+      {
+        type: "avatar",
+        state: "speaking",
+        expression: "happy",
+        intensity: 0.8,
+        source: "assistant",
+      }
+    );
+    assert.deepEqual(
+      parseChatStreamData(
+        '{"type":"source","documentId":"doc-1","page":3,"snippet":"quoted source","score":0.91}'
+      ),
+      {
+        type: "source",
+        id: undefined,
+        documentId: "doc-1",
+        title: undefined,
+        page: 3,
+        snippet: "quoted source",
+        score: 0.91,
+      }
+    );
+    assert.deepEqual(
+      parseChatStreamData('{"type":"memory","action":"write","label":"study goal"}'),
+      {
+        type: "memory",
+        action: "write",
+        id: undefined,
+        label: "study goal",
+      }
+    );
+    assert.deepEqual(parseChatStreamData('{"type":"error","message":"Nope"}'), {
+      type: "error",
+      code: undefined,
+      message: "Nope",
+    });
   });
 });

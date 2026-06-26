@@ -1,6 +1,6 @@
 # Reference Project Study
 
-This document records reusable design, architecture, and product lessons from adjacent open-source AI companion, VTuber, avatar, and agent projects. Use it as guidance for future UIT Waifu phases, not as a mandate to copy another project's code or assets.
+This document records reusable design, architecture, and product lessons from adjacent open-source AI companion, VTuber, avatar, and agent projects. Use it as guidance for future UIT Waifu phases, not as a mandate to copy another project's code or assets. See [Reference Stack Study](./REFERENCE_STACKS.md) for the deeper stack extraction from AIRI, Sanbaka, Open-LLM-VTuber, and Neuro.
 
 Research date: 2026-06-25
 
@@ -10,6 +10,7 @@ Research date: 2026-06-25
 - Borrow patterns at the boundary level: event flow, module shape, prompt routing, model-provider abstraction, avatar control, and deployment structure.
 - Do not copy private assets, secrets, personality files, model weights, or code with incompatible licenses.
 - Keep UIT Waifu web-first. Desktop, Twitch, Discord, Minecraft, WebXR, Live2D, and autonomous agent behavior should arrive only after the chat and academic workflows are stable.
+- Sanbaka/AIRI-style Vue/Vite/UnoCSS stacks are useful references for fast character-app iteration and modular packages, but UIT Waifu should stay on the deployed Next.js stack until a concrete feature requires a separate Vue shell.
 
 
 ## Open-Source Reference Map

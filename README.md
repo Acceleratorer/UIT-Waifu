@@ -74,12 +74,7 @@ The MVP should be lightweight and web-first. Advanced avatar, voice, Live2D, VRM
 
 UIT Waifu should feel less like a plain chatbot page and more like a small companion workspace. The main screen should combine a character stage, a practical chat panel, and fast mode switching so the user can move from casual conversation into study, coding, revision, document work, or project planning without leaving the flow.
 
-Local reference projects for longer design work:
-
-```txt
-D:\Code\Github\sanbaka
-D:\Code\Github\airi
-```
+Reference projects for longer design work are summarized in [Reference Projects](./docs/REFERENCE_PROJECTS.md) and [Reference Stack Study](./docs/REFERENCE_STACKS.md). Do not record local clone paths, private assets, secrets, or machine-specific setup in committed docs.
 
 Use `sanbaka` as the visual reference for:
 
@@ -576,6 +571,7 @@ Recommended deployment path:
 Detailed working documents:
 
 - [Reference Projects](./docs/REFERENCE_PROJECTS.md) - architecture and UX lessons from open-source AI companion and VTuber projects
+- [Reference Stack Study](./docs/REFERENCE_STACKS.md) - deeper stack and architecture lessons from AIRI, Sanbaka, Open-LLM-VTuber, and Neuro
 
 - [Features](./docs/FEATURES.md) — detailed feature catalogue by pillar
 - [Roadmap](./docs/ROADMAP.md) — phases and milestones

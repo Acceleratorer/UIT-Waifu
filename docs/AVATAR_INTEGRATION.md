@@ -21,6 +21,30 @@ borrows the *mechanism*, not the codebase.
 
 ---
 
+## Current Model Test Assets
+
+Local source drops are kept in `model/` and ignored by git because they contain large archives and raw PMX/MMD texture folders.
+
+```txt
+model/chisa   -> web-ready GLB selected for current deployment test
+model/hiyuki  -> PMX/MMD assets, needs conversion before web use
+model/lucyia  -> PMX/MMD assets, needs conversion before web use
+```
+
+The deployed test asset is:
+
+```txt
+public/models/chisa/chisa.glb
+```
+
+Selection rule for now:
+
+- Prefer `.glb`, `.gltf`, or `.vrm` for immediate web testing.
+- Keep `.pmx` and raw texture folders local until there is a tested conversion/import pipeline.
+- Do not commit source zips or full raw model drops.
+
+---
+
 ## What we take from Open-LLM-VTuber (and what we leave)
 
 Open-LLM-VTuber's real value for us is one proven idea, not its stack.
@@ -163,6 +187,30 @@ only loads three.js when the avatar is on (dynamic `import()`).
   and `output: "export"` must not try to prerender a WebGL canvas.
 - VRM/three add weight; code-split so `/chat` stays light when the avatar is off.
 - No new server dependency. Cloudflare deploy story is unchanged.
+
+---
+
+## Alignment With Reference Stack Study
+
+[REFERENCE_STACKS.md](./REFERENCE_STACKS.md) adds four avatar lessons:
+
+- AIRI and Sanbaka suggest a clean stage boundary: the avatar renderer should be replaceable without rewriting chat.
+- Open-LLM-VTuber suggests expression and audio signals should be structured events, not hidden in prose.
+- Neuro suggests runtime state should be explicit and observable: idle, thinking, speaking, interrupted, and error states should be visible to the UI.
+- UIT Waifu should stay optional and code-split so the web chat remains fast on weak devices.
+
+Near-term avatar event shape:
+
+```ts
+type AvatarEvent = {
+  state: "idle" | "thinking" | "speaking" | "error";
+  expression?: "neutral" | "happy" | "thinking" | "surprised" | "sad";
+  intensity?: number;
+  source: "mode" | "assistant" | "voice" | "system";
+};
+```
+
+The chat response may still include simple expression tags during the MVP, but the target architecture is structured avatar events carried beside the text stream.
 
 ---
 

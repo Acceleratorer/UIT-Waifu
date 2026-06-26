@@ -1,22 +1,28 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef } from "react";
+import { ModelStage } from "@/components/avatar/model-stage";
+import { Button } from "@/components/ui/button";
 import { MessageList } from "./message-list";
 import { MessageInput } from "./message-input";
 import { ModeSelector } from "./mode-selector";
 import { useChat } from "@/features/chat/hooks/use-chat";
-import { MODES, type Mode } from "@/data/modes";
+import { getModeById, type Mode } from "@/data/modes";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
+function titleCase(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
 
 export function ChatWindow() {
   const { messages, input, setInput, isStreaming, error, mode, setMode, send, stop, clear } =
     useChat();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const activeMode = MODES.find((m) => m.id === mode) ?? MODES[0];
+  const activeMode = getModeById(mode);
 
   useEffect(() => {
+    if (messages.length === 0) return;
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
   }, [messages]);
 
@@ -36,7 +42,7 @@ export function ChatWindow() {
         </div>
 
         <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto px-3 py-4 md:px-4">
-          <div className="mx-auto h-full max-w-3xl">
+          <div className="mx-auto min-h-full max-w-3xl">
             <MessageList
               messages={messages}
               isStreaming={isStreaming}
@@ -60,16 +66,17 @@ export function ChatWindow() {
               <ModeSelector value={mode} onChange={setMode} disabled={isStreaming} />
               <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
                 <span className="hidden min-w-0 truncate text-xs text-foreground/40 sm:block">
-                  {MODES.find((m) => m.id === mode)?.description}
+                  {activeMode.runtime.behavior}
                 </span>
                 {messages.length > 0 && (
-                  <button
-                    type="button"
+                  <Button
                     onClick={clear}
-                    className="shrink-0 rounded-lg border border-foreground/15 px-3 py-1.5 text-xs font-medium text-foreground/70 transition hover:bg-foreground/5"
+                    variant="ghost"
+                    size="sm"
+                    className="shrink-0"
                   >
                     Clear
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
@@ -101,6 +108,7 @@ function StagePanel({
   messageCount: number;
 }) {
   const state = isStreaming ? "Thinking" : messageCount > 0 ? "Listening" : "Ready";
+  const mood = isStreaming ? "thinking" : activeMode.runtime.avatar.mood;
 
   return (
     <section className="relative min-h-0 overflow-hidden rounded-2xl border border-white/45 bg-zinc-950 text-white shadow-2xl shadow-teal-950/10 dark:border-white/10">
@@ -118,17 +126,18 @@ function StagePanel({
             <p className="text-xs uppercase text-white/50">Mode</p>
             <p className="text-sm font-semibold">{activeMode.label}</p>
           </div>
+          <div className="hidden rounded-xl border border-teal-200/20 bg-teal-200/10 px-3 py-2 text-right backdrop-blur-md sm:block">
+            <p className="text-xs uppercase text-white/50">Mood</p>
+            <p className="text-sm font-semibold">{titleCase(mood)}</p>
+          </div>
         </div>
 
         <div className="relative min-h-0 flex-1">
-          <Image
-            src={`${BASE_PATH}/icons/logo-stage.png`}
-            alt="UIT Waifu avatar"
-            width={1320}
-            height={1577}
-            unoptimized
-            priority
-            className="avatar-float absolute inset-x-0 bottom-2 mx-auto h-[80%] max-h-[620px] w-auto max-w-[82%] object-contain drop-shadow-[0_28px_44px_rgba(0,0,0,0.45)] lg:bottom-10 lg:h-[74%]"
+          <ModelStage
+            modelUrl={`${BASE_PATH}/models/chisa/chisa.glb`}
+            fallbackUrl={`${BASE_PATH}/icons/logo-stage.png`}
+            mood={mood}
+            isActive={isStreaming}
           />
         </div>
 
@@ -139,6 +148,9 @@ function StagePanel({
                 <p className="text-lg font-semibold">UIT Waifu</p>
                 <p className="mt-1 max-w-md text-sm text-white/65">
                   {activeMode.description}
+                </p>
+                <p className="mt-2 max-w-md text-xs text-white/45">
+                  {activeMode.runtime.outputStyle}
                 </p>
               </div>
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-teal-200/20 bg-teal-200/10 text-sm font-semibold text-teal-100">

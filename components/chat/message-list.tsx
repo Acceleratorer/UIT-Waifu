@@ -1,5 +1,6 @@
 import { MessageBubble } from "./message-bubble";
-import { MODES, type ModeId } from "@/data/modes";
+import { Button } from "@/components/ui/button";
+import { getModeById, type ModeId } from "@/data/modes";
 import type { ChatMessage } from "@/features/chat/types";
 
 interface MessageListProps {
@@ -16,10 +17,10 @@ export function MessageList({
   onStarterSelect,
 }: MessageListProps) {
   if (messages.length === 0) {
-    const activeMode = MODES.find((m) => m.id === mode) ?? MODES[0];
+    const activeMode = getModeById(mode);
 
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 text-center text-foreground/55">
+      <div className="flex min-h-full flex-col items-center justify-start gap-4 py-4 text-center text-foreground/55 sm:justify-center">
         <div className="space-y-2">
           <p className="text-lg font-medium text-foreground">
             {activeMode.label} mode
@@ -30,14 +31,14 @@ export function MessageList({
         </div>
         <div className="grid w-full max-w-xl gap-2 sm:grid-cols-2">
           {activeMode.starters.map((starter) => (
-            <button
+            <Button
               key={starter.label}
-              type="button"
               onClick={() => onStarterSelect(starter.prompt)}
-              className="min-h-12 rounded-xl border border-pink-200/40 bg-white/55 px-3 py-2 text-left text-sm font-medium text-foreground shadow-sm backdrop-blur-md transition hover:border-pink-300 hover:bg-pink-500/10 focus:outline-none focus:ring-2 focus:ring-pink-400 dark:border-white/10 dark:bg-white/10"
+              variant="outline"
+              className="min-h-12 justify-start rounded-xl px-3 py-2 text-left"
             >
               {starter.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>

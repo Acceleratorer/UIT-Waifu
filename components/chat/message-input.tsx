@@ -1,6 +1,9 @@
 "use client";
 
 import { useRef, type KeyboardEvent } from "react";
+import { Send, Square } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 interface MessageInputProps {
   value: string;
@@ -28,33 +31,34 @@ export function MessageInput({
 
   return (
     <div className="relative overflow-hidden rounded-xl border border-pink-200/45 bg-pink-50/65 shadow-sm backdrop-blur-md focus-within:border-pink-400 dark:border-white/10 dark:bg-pink-950/25">
-      <textarea
+      <Textarea
         ref={textareaRef}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
         rows={3}
         placeholder="Message UIT Waifu..."
-        className="max-h-40 min-h-[92px] w-full resize-none bg-transparent px-3 py-3 pb-14 text-sm outline-none placeholder:text-foreground/40"
+        className="max-h-40 min-h-[92px] pb-14"
       />
       <div className="absolute bottom-2 right-2">
         {isStreaming ? (
-          <button
-            type="button"
+          <Button
             onClick={onStop}
-            className="rounded-md border border-foreground/15 bg-white/60 px-4 py-2 text-sm font-medium transition hover:bg-white/80 active:scale-95 dark:bg-white/10 dark:hover:bg-white/15"
+            variant="secondary"
+            size="sm"
           >
+            <Square className="h-3.5 w-3.5" aria-hidden="true" />
             Stop
-          </button>
+          </Button>
         ) : (
-          <button
-            type="button"
+          <Button
             onClick={onSend}
             disabled={!value.trim()}
-            className="rounded-md bg-pink-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-pink-600 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+            size="sm"
           >
+            <Send className="h-3.5 w-3.5" aria-hidden="true" />
             Send
-          </button>
+          </Button>
         )}
       </div>
     </div>

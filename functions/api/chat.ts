@@ -10,6 +10,7 @@ import {
   getMissingProviderKeyMessage,
   resolveChatProvider,
 } from "../../lib/ai/providers";
+import { serializeChatStreamEvent } from "../../lib/ai/stream-events";
 
 interface Env {
   AI_PROVIDER?: string;
@@ -103,7 +104,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     );
   }
 
-  // Translate provider-specific SSE into our {delta} events.
+  // Translate provider-specific SSE into our normalized stream events.
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
   const reader = upstream.body.getReader();
@@ -114,7 +115,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       for (;;) {
         const { done, value } = await reader.read();
         if (done) {
-          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+          controller.enqueue(
+            encoder.encode(serializeChatStreamEvent({ type: "done" }))
+          );
           controller.close();
           return;
         }
@@ -132,7 +135,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             const delta = extractProviderDelta(provider, parsed);
             if (delta) {
               controller.enqueue(
-                encoder.encode(`data: ${JSON.stringify({ delta })}\n\n`)
+                encoder.encode(
+                  serializeChatStreamEvent({ type: "delta", delta })
+                )
               );
             }
           } catch {

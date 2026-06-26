@@ -116,6 +116,7 @@ You are in study tutor mode.
 Explain concepts step by step, starting from what the student likely already knows.
 Give a hint before revealing a full solution, then ask if they want the rest.
 Use concrete examples. Generate a short practice question when it helps.
+When asked to summarize a lesson, extract key ideas, formulas or definitions, common traps, and a short self-check quiz.
 Keep explanations grounded; do not invent facts.
 PROMPT,
         'code' => <<<'PROMPT'
@@ -124,6 +125,7 @@ When debugging, identify the root cause before suggesting a fix.
 Explain compiler and runtime errors in plain language.
 Format all code in fenced blocks with the correct language tag.
 For SQL, note correctness and obvious performance issues.
+When refactoring, preserve behavior unless the user explicitly asks for a redesign.
 State the time complexity when relevant.
 Do not rewrite working code unless asked.
 PROMPT,
@@ -305,5 +307,5 @@ $reply = call_anthropic($url, $apiKey, $model, $request['mode'], $request['messa
 header('Content-Type: text/event-stream; charset=utf-8');
 header('Cache-Control: no-cache');
 header('X-Accel-Buffering: no');
-echo 'data: ' . json_encode(['delta' => $reply], JSON_UNESCAPED_SLASHES) . "\n\n";
-echo "data: [DONE]\n\n";
+echo 'data: ' . json_encode(['type' => 'delta', 'delta' => $reply], JSON_UNESCAPED_SLASHES) . "\n\n";
+echo 'data: ' . json_encode(['type' => 'done'], JSON_UNESCAPED_SLASHES) . "\n\n";

@@ -297,6 +297,27 @@ supabase db push
 
 ---
 
+## Memory And RAG Control Model
+
+The reference projects in [REFERENCE_STACKS.md](./REFERENCE_STACKS.md) make one rule clear: memory should be useful, visible, and controllable. UIT Waifu should not create hidden personality memory that users cannot inspect.
+
+Memory rules:
+
+- Store long-term memory separately from chat history and document chunks.
+- Include a memory `type`, such as `preference`, `study_goal`, `profile_fact`, `project_context`, or `correction`.
+- Store source metadata when a memory is derived from a conversation, document, or explicit user action.
+- Provide list, delete, export, and full wipe controls before automated memory becomes active.
+- Prefer explicit user approval for long-term memory writes in early phases.
+
+RAG rules:
+
+- Keep `document_chunks` focused on uploaded-source retrieval, not personality memory.
+- Return source IDs, document IDs, chunk positions, and page metadata with answers.
+- Never store private chat data, document text, or user memory on-chain.
+- Keep embeddings provider-agnostic so Supabase pgvector can stay while model providers change.
+
+---
+
 ## Entity Overview
 
 ```txt

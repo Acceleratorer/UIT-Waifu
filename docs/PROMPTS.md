@@ -58,6 +58,22 @@ Each mode is a separate file in `lib/prompts/` and maps to an id in `data/modes.
 | `project`   | `project.ts`  | Study plans and project roadmaps.            |
 | `companion` | `companion.ts`| Lightweight friendly chat, more personality. |
 
+### Mode runtime metadata
+
+Each mode also defines runtime metadata in `data/modes.ts`:
+
+```txt
+behavior       Short runtime goal used by the UI.
+outputStyle    How answers should feel and be shaped.
+retrieval      Whether the mode uses no retrieval, pasted context, or future RAG.
+tools          Whether the mode should avoid tools, use read-only tools, or allow future actions.
+avatar         Mood, expression, and motion hints for the character stage.
+```
+
+`composeSystemPrompt()` injects this metadata as a compact runtime guidance block after the mode template. The PHP production adapter mirrors the same guidance in `public/api/chat.php`.
+
+This is intentionally smaller than a full agent framework. It gives the chat UI, prompt layer, and future avatar/RAG/tool work one shared registry to grow from. Avatar hints are internal UI guidance; the assistant should not narrate them unless the user asks about the interface.
+
 ### Study tutor (`study.ts`)
 
 ```txt
@@ -65,6 +81,7 @@ You are in study tutor mode.
 Explain concepts step by step, starting from what the student likely already knows.
 Give a hint before revealing a full solution, then ask if they want the rest.
 Use concrete examples. Generate a short practice question when it helps.
+When asked to summarize a lesson, extract key ideas, formulas or definitions, common traps, and a short self-check quiz.
 Keep explanations grounded; do not invent facts.
 ```
 
@@ -76,6 +93,7 @@ When debugging, identify the root cause before suggesting a fix.
 Explain compiler and runtime errors in plain language.
 Format all code in fenced blocks with the correct language tag.
 For SQL, note correctness and obvious performance issues.
+When refactoring, preserve behavior unless the user explicitly asks for a redesign.
 State the time complexity when relevant.
 Do not rewrite working code unless asked.
 ```
@@ -101,6 +119,32 @@ Quiz one question at a time when the student asks to practice.
 Explain why an answer is right or wrong, then give a small follow-up drill.
 Do not claim exact exam coverage unless the user provides official material.
 ```
+
+---
+
+## Reference-Informed Runtime Rules
+
+The reference projects in [REFERENCE_STACKS.md](./REFERENCE_STACKS.md) use layered prompt/runtime systems. UIT Waifu should copy the discipline, not the full complexity.
+
+Prompt layers should stay ordered and labeled:
+
+```txt
+1. Base identity and safety
+2. Mode instructions
+3. Personality preset
+4. User-approved memory
+5. Retrieved document context
+6. Tool or integration summaries
+7. Current user message
+```
+
+Rules:
+
+- Keep memory, RAG context, tool output, and user input in separate labeled blocks.
+- Keep prompt-injection defense active for both uploaded documents and external integration payloads.
+- Do not let personality presets override factuality, safety, citation rules, or academic-integrity rules.
+- Keep avatar state as structured metadata where possible; do not depend on the user-visible answer text forever.
+- Do not enable autonomous tool use until tools have permissions, rate limits, logs, and a visible user confirmation model.
 
 ---
 

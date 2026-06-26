@@ -153,6 +153,19 @@ web-accessible paths.
 
 ---
 
+## Reference-Informed Deployment Direction
+
+The reference stack study in [REFERENCE_STACKS.md](./REFERENCE_STACKS.md) confirms that the production path should stay web-first:
+
+- Keep the main app as a static Next.js export with DirectAdmin/PHP adapters until the product needs a hosted Node runtime.
+- Keep all provider keys, service role keys, and runtime config outside `public_html`.
+- Deploy future Python/FastAPI voice or local-inference services separately behind authenticated server-to-server APIs.
+- Deploy any future Vue/Vite stage shell as an isolated route or package only if the avatar runtime needs it.
+- Do not deploy local reference repos, raw model work folders, or research-only assets.
+- Do not add stream-platform integrations to production until auth, rate limits, logs, and user controls are in place.
+
+---
+
 ## Deployment Checklist
 
 Before promoting a build to production:

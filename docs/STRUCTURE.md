@@ -702,6 +702,27 @@ Recommended order for implementation:
 
 ---
 
+## Reference-Informed Boundaries
+
+The reference projects in [REFERENCE_STACKS.md](./REFERENCE_STACKS.md) show that companion apps stay maintainable when chat, runtime state, avatar rendering, memory, and external integrations are separate modules. UIT Waifu should keep these boundaries:
+
+- `data/modes.ts` remains the public registry for mode labels, examples, prompt IDs, runtime hints, and UI metadata.
+- `lib/prompts/` owns prompt construction only. It should not call providers, storage, or UI code.
+- `lib/ai/` should normalize provider calls and streaming responses behind a small interface before more providers are added.
+- `features/chat/` should own chat state, message reducers, and event handling once the current component-level logic grows.
+- `features/avatar/` should own model loading, expression mapping, and avatar state. It should consume structured runtime events, not raw assistant text.
+- `lib/memory/` should own saved preferences, user-controlled memory, and summarization rules once Supabase history begins.
+- `lib/rag/` should own retrieval, chunk scoring, source formatting, and citation assembly.
+- `services/` is reserved for future long-running runtimes such as Python voice, local inference, desktop, or stream integrations. Do not add it until the web app needs a process outside Next.js.
+
+Stack guardrails:
+
+- Do not migrate the main app to Vue/Vite during the MVP. AIRI and Sanbaka inform runtime architecture, plugin boundaries, and stage ideas.
+- Do not add a monorepo until multiple independently shipped packages exist.
+- Do not require local GPU, Python voice services, or persistent WebSocket infrastructure for the web MVP.
+
+---
+
 ## Architecture Rules
 
 - Keep route handlers thin.

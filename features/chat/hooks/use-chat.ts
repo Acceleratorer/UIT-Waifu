@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChatMessage } from "../types";
 import { DEFAULT_MODE, type ModeId } from "@/data/modes";
+import { parseChatStreamData } from "@/lib/ai/stream-events";
 import {
   clearSessionMessages,
   readDefaultMode,
@@ -131,25 +132,25 @@ export function useChat(): UseChatResult {
             const line = event.trim();
             if (!line.startsWith("data:")) continue;
             const data = line.slice(5).trim();
-            if (data === "[DONE]") continue;
-            try {
-              const parsed = JSON.parse(data);
-              const delta: string = parsed.delta ?? "";
-              if (delta) {
-                setMessages((prev) => {
-                  const next = [...prev];
-                  const last = next[next.length - 1];
-                  if (last && last.role === "assistant") {
-                    next[next.length - 1] = {
-                      ...last,
-                      content: last.content + delta,
-                    };
-                  }
-                  return next;
-                });
-              }
-            } catch {
-              // Ignore malformed keep-alive lines.
+            const parsed = parseChatStreamData(data);
+            if (!parsed) continue;
+
+            if (parsed.type === "delta" && parsed.delta) {
+              setMessages((prev) => {
+                const next = [...prev];
+                const last = next[next.length - 1];
+                if (last && last.role === "assistant") {
+                  next[next.length - 1] = {
+                    ...last,
+                    content: last.content + parsed.delta,
+                  };
+                }
+                return next;
+              });
+            }
+
+            if (parsed.type === "error") {
+              throw new Error(parsed.message);
             }
           }
         }

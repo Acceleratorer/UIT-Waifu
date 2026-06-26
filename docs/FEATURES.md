@@ -89,11 +89,11 @@ Practical, clear coding help. Full list in the [README](../README.md#3-coding-as
 
 | Feature | Status | Notes |
 |---|---|---|
-| Explain code logic | [~] | |
-| Debug runtime + compiler errors | [~] | |
-| Review SQL queries | [ ] | |
-| Time-complexity analysis | [ ] | |
-| Refactor / suggest improvements | [ ] | |
+| Explain code logic | [x] | Exposed in Code mode starter and prompt |
+| Debug runtime + compiler errors | [x] | Exposed in Code mode starter and prompt |
+| Review SQL queries | [x] | Exposed in Code mode starter and prompt |
+| Time-complexity analysis | [x] | Exposed in Code mode starter and prompt |
+| Refactor / suggest improvements | [x] | Exposed in Code mode starter and prompt |
 | Generate starter code | [ ] | |
 | 300 UIT exercises support | [?] | Curated set tied to practice points |
 
@@ -190,6 +190,20 @@ Where UIT Waifu runs.
 | Telegram | [?] | Stretch goal |
 
 > Linux desktop isn't planned yet, but a web-first app already runs anywhere with a browser.
+
+---
+
+## Reference Stack Alignment
+
+The reference study in [REFERENCE_STACKS.md](./REFERENCE_STACKS.md) changes how features should be prioritized:
+
+- Chat modes are runtime behavior, not just prompt text. Each mode needs metadata, example actions, prompt IDs, and expected UI state.
+- Memory must be user-visible and editable before it becomes automatic.
+- RAG must show sources and uncertainty before document workflows become more ambitious.
+- Avatar work should receive structured state events and stay optional until performance is proven.
+- Voice starts with push-to-talk and clear transcript review. Always-listening, interruption handling, and low-latency full-duplex voice come later.
+- Platform integrations reuse the same chat, memory, and prompt core. They should not become separate assistant brains.
+- Gaming, autonomous behavior, stream-control features, and external API actions stay out of scope until user permissions and safety controls exist.
 
 ---
 

@@ -35,6 +35,9 @@ yarn-error.log*
 coverage/
 .playwright-cli/
 
+# Local source model drops
+model/
+
 # Editor / OS
 .DS_Store
 .idea/

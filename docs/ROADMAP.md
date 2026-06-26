@@ -43,7 +43,7 @@ Core features:
 
 - [x] Next.js app setup
 - [x] Tailwind CSS setup
-- [ ] ShadCN UI setup
+- [x] ShadCN UI setup
 - [x] Landing page
 - [x] Chat page
 - [x] Settings page
@@ -90,27 +90,30 @@ Modes:
 - [x] Document Q&A placeholder
 - [x] Exam revision
 - [x] Project planning
+- [x] Runtime metadata for behavior, retrieval policy, tool policy, and avatar hints
 
 Study tutor features:
 
-- [ ] Explain concepts step by step
-- [ ] Generate examples
-- [ ] Generate practice questions
-- [ ] Give hints before full answer
-- [ ] Summarize lessons
+- [x] Explain concepts step by step
+- [x] Generate examples
+- [x] Generate practice questions
+- [x] Give hints before full answer
+- [x] Summarize lessons
 
 Code assistant features:
 
-- [ ] Explain code
-- [ ] Debug errors
-- [ ] Analyze complexity
-- [ ] Refactor code
-- [ ] Review SQL queries
+- [x] Explain code
+- [x] Debug errors
+- [x] Analyze complexity
+- [x] Refactor code
+- [x] Review SQL queries
 
 Success criteria:
 
 - [x] User can choose assistant mode
 - [x] Each mode uses a different prompt template
+- [x] Each mode exposes structured runtime metadata for UI and future agent behavior
+- [x] Runtime metadata is included in prompt composition
 - [x] Chat provider stream is normalized for OpenRouter and Anthropic Claude
 - [ ] Code answers are verified against a real provider response
 
@@ -203,7 +206,8 @@ Goal: make the assistant feel like a companion without overcomplicating the MVP.
 
 Avatar MVP:
 
-- [ ] Static character image
+- [x] Static character image
+- [x] First Three.js GLB model test on chat stage
 - [ ] Expression states
 - [ ] Thinking animation
 - [ ] Typing animation
@@ -282,7 +286,9 @@ Live2D path:
 
 VRM path:
 
-- [ ] Research Three.js VRM rendering
+- [x] Research Three.js/browser model rendering
+- [x] Load web-ready GLB model
+- [ ] Convert/test PMX drops for web use
 - [ ] Load VRM model
 - [ ] Add idle animation
 - [ ] Add look-at behavior
@@ -352,6 +358,22 @@ Recommended build order:
 8. Live2D or VRM
 9. Integrations
 ```
+
+---
+
+## Reference Stack Alignment
+
+The open-source study in [REFERENCE_STACKS.md](./REFERENCE_STACKS.md) updates the roadmap without changing the MVP order:
+
+- Keep the main product on the current Next.js, React, TypeScript, Tailwind, and ShadCN-style stack through the first complete web release.
+- Treat Vue/Vite patterns from AIRI and Sanbaka as future stage-shell inspiration, not a reason to rewrite the current app.
+- Treat Python/FastAPI patterns from Open-LLM-VTuber and Neuro as a later local or voice runtime, not a Phase 1 dependency.
+- Use the current mode registry as the seed of a runtime state model: `idle`, `thinking`, `streaming`, `speaking`, `error`, and mode-specific metadata.
+- Add memory controls before deeper personalization: list, delete, export, and wipe should exist before hidden long-term memory becomes powerful.
+- Add RAG with explicit source snippets and citations before autonomous tools.
+- Keep avatar signals structured and separate from chat text so the renderer can evolve without parsing assistant prose.
+- Ship push-to-talk voice before any always-listening voice flow.
+- Delay Discord, Telegram, Twitch-style streaming, Minecraft, desktop, and autonomous game control until auth, safety, rate limiting, and user controls are solid.
 
 ---
 

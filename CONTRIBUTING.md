@@ -99,6 +99,14 @@ If a change affects setup, structure, the API, the database, prompts, or deploym
 
 Docs and code should never disagree. A change that makes them disagree is incomplete.
 
+When adding knowledge from external reference projects:
+
+- Update [REFERENCE_STACKS.md](./docs/REFERENCE_STACKS.md) for deep research notes.
+- Update [REFERENCE_PROJECTS.md](./docs/REFERENCE_PROJECTS.md) when a new project changes architecture or roadmap decisions.
+- Update the affected operational docs in the same change: roadmap, structure, API, database, prompts, deployment, avatar, or features.
+- Do not commit local clone paths, private credentials, copied model files, or reference-project assets unless their license and purpose are documented.
+- Convert reference observations into UIT Waifu decisions. Avoid dumping raw notes that future contributors cannot act on.
+
 ---
 
 ## Security And Privacy

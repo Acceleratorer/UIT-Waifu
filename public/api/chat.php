@@ -13,6 +13,7 @@ const CONTENT_SECURITY_POLICY_REPORT_ONLY = "default-src 'self'; base-uri 'self'
 
 function security_headers(): void
 {
+    header_remove('X-Powered-By');
     header('X-Content-Type-Options: nosniff');
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('X-Frame-Options: SAMEORIGIN');

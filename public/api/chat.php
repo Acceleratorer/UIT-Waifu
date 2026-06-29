@@ -95,6 +95,56 @@ function enforce_chat_rate_limit(): void
     }
 }
 
+function normalized_host(?string $host): string
+{
+    if (!is_string($host) || trim($host) === '') {
+        return '';
+    }
+
+    return strtolower(preg_replace('/:\d+$/', '', trim($host)) ?? '');
+}
+
+function url_host(?string $value): string
+{
+    if (!is_string($value) || trim($value) === '') {
+        return '';
+    }
+
+    $host = parse_url($value, PHP_URL_HOST);
+    return is_string($host) ? normalized_host($host) : '';
+}
+
+function enforce_same_origin_request(): void
+{
+    $requestHost = normalized_host($_SERVER['HTTP_HOST'] ?? '');
+    if ($requestHost === '') {
+        json_error_response(403, 'forbidden', 'Invalid request host.');
+    }
+
+    $originHost = url_host($_SERVER['HTTP_ORIGIN'] ?? '');
+    if ($originHost !== '' && $originHost !== $requestHost) {
+        json_error_response(403, 'forbidden', 'Cross-origin chat requests are not allowed.');
+    }
+
+    $refererHost = url_host($_SERVER['HTTP_REFERER'] ?? '');
+    if ($originHost === '' && $refererHost !== '' && $refererHost !== $requestHost) {
+        json_error_response(403, 'forbidden', 'Cross-origin chat requests are not allowed.');
+    }
+}
+
+function enforce_json_content_type(): void
+{
+    $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
+    if (!is_string($contentType)) {
+        $contentType = '';
+    }
+
+    $mediaType = strtolower(trim(explode(';', $contentType)[0] ?? ''));
+    if ($mediaType !== 'application/json') {
+        json_error_response(415, 'unsupported_media', 'Chat requests must use application/json.');
+    }
+}
+
 function read_private_config(): array
 {
     $configPath = dirname(__DIR__, 3) . '/.uit-waifu.env.php';
@@ -401,6 +451,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_error_response(405, 'method_not_allowed', 'Method not allowed.');
 }
 
+enforce_same_origin_request();
+enforce_json_content_type();
 enforce_chat_rate_limit();
 $privateConfig = read_private_config();
 $apiKey = anthropic_key($privateConfig);

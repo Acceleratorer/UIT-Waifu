@@ -11,6 +11,11 @@ import {
   resolveChatProvider,
 } from "../../lib/ai/providers";
 import { serializeChatStreamEvent } from "../../lib/ai/stream-events";
+import {
+  isJsonContentType,
+  isSameOriginRequest,
+  MAX_CHAT_REQUEST_BYTES,
+} from "../../lib/http/request-security";
 
 interface Env {
   AI_PROVIDER?: string;
@@ -40,6 +45,31 @@ function jsonErrorResponse(
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
+
+  if (!isSameOriginRequest(request)) {
+    return jsonErrorResponse(
+      403,
+      "forbidden",
+      "Cross-origin chat requests are not allowed."
+    );
+  }
+
+  if (!isJsonContentType(request.headers.get("content-type"))) {
+    return jsonErrorResponse(
+      415,
+      "unsupported_media",
+      "Chat requests must use application/json."
+    );
+  }
+
+  const contentLength = Number(request.headers.get("content-length") ?? "0");
+  if (Number.isFinite(contentLength) && contentLength > MAX_CHAT_REQUEST_BYTES) {
+    return jsonErrorResponse(
+      413,
+      "payload_too_large",
+      "Chat request is too large."
+    );
+  }
 
   const provider = resolveChatProvider(env);
   if (!provider) {

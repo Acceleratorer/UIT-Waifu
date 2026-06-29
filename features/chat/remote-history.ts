@@ -1,8 +1,16 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { ModeId } from "@/data/modes";
+import { DEFAULT_MODE, isModeId, type ModeId } from "@/data/modes";
 import type { ChatMessage } from "./types";
 
 const MAX_CONVERSATION_TITLE_CHARS = 64;
+const MAX_REMOTE_CONVERSATIONS = 20;
+
+export interface RemoteConversation {
+  id: string;
+  title: string;
+  mode: ModeId;
+  updatedAt: string;
+}
 
 export function createConversationTitle(firstMessage: string): string {
   const normalized = firstMessage.replace(/\s+/g, " ").trim();
@@ -20,6 +28,93 @@ export function buildMessageRows(
     role: message.role,
     content: message.content,
   }));
+}
+
+export function normalizeRemoteConversationRow(
+  value: unknown
+): RemoteConversation | null {
+  if (!value || typeof value !== "object") return null;
+
+  const row = value as Record<string, unknown>;
+  if (typeof row.id !== "string") return null;
+
+  const title =
+    typeof row.title === "string" && row.title.trim()
+      ? row.title.trim()
+      : "New conversation";
+  const updatedAt =
+    typeof row.updated_at === "string"
+      ? row.updated_at
+      : typeof row.created_at === "string"
+        ? row.created_at
+        : "";
+
+  return {
+    id: row.id,
+    title: createConversationTitle(title),
+    mode: isModeId(row.mode) ? row.mode : DEFAULT_MODE,
+    updatedAt,
+  };
+}
+
+export function normalizeRemoteMessageRow(value: unknown): ChatMessage | null {
+  if (!value || typeof value !== "object") return null;
+
+  const row = value as Record<string, unknown>;
+  const role = row.role;
+  const content = row.content;
+  if ((role !== "user" && role !== "assistant") || typeof content !== "string") {
+    return null;
+  }
+
+  return { role, content };
+}
+
+export async function listRemoteConversations(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<RemoteConversation[]> {
+  const { data, error } = await supabase
+    .from("conversations")
+    .select("id,title,mode,created_at,updated_at")
+    .eq("user_id", userId)
+    .order("updated_at", { ascending: false })
+    .limit(MAX_REMOTE_CONVERSATIONS);
+
+  if (error) throw error;
+
+  return (data ?? [])
+    .map(normalizeRemoteConversationRow)
+    .filter((conversation): conversation is RemoteConversation => Boolean(conversation));
+}
+
+export async function loadRemoteMessages(
+  supabase: SupabaseClient,
+  conversationId: string
+): Promise<ChatMessage[]> {
+  const { data, error } = await supabase
+    .from("messages")
+    .select("role,content")
+    .eq("conversation_id", conversationId)
+    .order("created_at", { ascending: true });
+
+  if (error) throw error;
+
+  return (data ?? [])
+    .map(normalizeRemoteMessageRow)
+    .filter((message): message is ChatMessage => Boolean(message));
+}
+
+export async function deleteRemoteConversation(
+  supabase: SupabaseClient,
+  conversationId: string
+): Promise<void> {
+  const { error } = await supabase
+    .from("conversations")
+    .delete()
+    .eq("id", conversationId);
+
+  if (error) throw error;
 }
 
 export async function ensureRemoteConversation({
@@ -65,4 +160,11 @@ export async function saveRemoteMessages(
     .insert(buildMessageRows(conversationId, messages));
 
   if (error) throw error;
+
+  const { error: touchError } = await supabase
+    .from("conversations")
+    .update({ updated_at: new Date().toISOString() })
+    .eq("id", conversationId);
+
+  if (touchError) throw touchError;
 }

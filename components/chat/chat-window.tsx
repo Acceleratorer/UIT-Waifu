@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { History, RefreshCw, Trash2 } from "lucide-react";
 import { ModelStage } from "@/components/avatar/model-stage";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { MessageList } from "./message-list";
 import { MessageInput } from "./message-input";
 import { ModeSelector } from "./mode-selector";
@@ -16,8 +18,25 @@ function titleCase(value: string) {
 }
 
 export function ChatWindow() {
-  const { messages, input, setInput, isStreaming, error, mode, setMode, send, stop, clear } =
-    useChat();
+  const {
+    messages,
+    input,
+    setInput,
+    isStreaming,
+    error,
+    mode,
+    setMode,
+    send,
+    stop,
+    clear,
+    conversations,
+    activeConversationId,
+    historyStatus,
+    historyError,
+    refreshConversations,
+    loadConversation,
+    deleteConversation,
+  } = useChat();
   const scrollRef = useRef<HTMLDivElement>(null);
   const activeMode = getModeById(mode);
 
@@ -62,6 +81,16 @@ export function ChatWindow() {
                 {error}
               </p>
             )}
+            <HistoryControls
+              conversations={conversations}
+              activeConversationId={activeConversationId}
+              status={historyStatus}
+              error={historyError}
+              disabled={isStreaming}
+              onRefresh={refreshConversations}
+              onLoad={loadConversation}
+              onDelete={deleteConversation}
+            />
             <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
               <ModeSelector value={mode} onChange={setMode} disabled={isStreaming} />
               <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
@@ -94,6 +123,100 @@ export function ChatWindow() {
           </div>
         </div>
       </section>
+    </div>
+  );
+}
+
+function HistoryControls({
+  conversations,
+  activeConversationId,
+  status,
+  error,
+  disabled,
+  onRefresh,
+  onLoad,
+  onDelete,
+}: {
+  conversations: { id: string; title: string }[];
+  activeConversationId: string | null;
+  status: "unavailable" | "loading" | "signed-out" | "ready" | "error";
+  error: string | null;
+  disabled: boolean;
+  onRefresh: () => void;
+  onLoad: (conversationId: string) => void;
+  onDelete: (conversationId: string) => void;
+}) {
+  if (status === "unavailable") return null;
+
+  const isBusy = status === "loading";
+  const hasConversations = conversations.length > 0;
+  const selectPlaceholder =
+    status === "signed-out"
+      ? "Sign in for history"
+      : isBusy
+        ? "Loading history"
+        : hasConversations
+          ? "Current chat"
+          : "No saved chats";
+
+  function handleDelete() {
+    if (!activeConversationId) return;
+    if (typeof window !== "undefined" && !window.confirm("Delete this conversation?")) {
+      return;
+    }
+    onDelete(activeConversationId);
+  }
+
+  return (
+    <div className="mb-2 flex flex-wrap items-center gap-2 rounded-xl border border-white/45 bg-white/35 p-2 backdrop-blur-md dark:border-white/10 dark:bg-black/15">
+      <div className="flex min-w-[220px] flex-1 items-center gap-2">
+        <History className="h-4 w-4 shrink-0 text-foreground/45" aria-hidden="true" />
+        <label htmlFor="conversation-history" className="sr-only">
+          Conversation history
+        </label>
+        <Select
+          id="conversation-history"
+          value={activeConversationId ?? ""}
+          disabled={disabled || isBusy || status === "signed-out" || !hasConversations}
+          onChange={(event) => {
+            const conversationId = event.target.value;
+            if (conversationId) onLoad(conversationId);
+          }}
+          className="min-w-0 flex-1"
+        >
+          <option value="">{selectPlaceholder}</option>
+          {conversations.map((conversation) => (
+            <option key={conversation.id} value={conversation.id}>
+              {conversation.title}
+            </option>
+          ))}
+        </Select>
+      </div>
+      <Button
+        onClick={onRefresh}
+        variant="ghost"
+        size="icon"
+        disabled={disabled || isBusy || status === "signed-out"}
+        aria-label="Refresh conversation history"
+        title="Refresh conversation history"
+      >
+        <RefreshCw className="h-4 w-4" aria-hidden="true" />
+      </Button>
+      <Button
+        onClick={handleDelete}
+        variant="ghost"
+        size="icon"
+        disabled={disabled || isBusy || !activeConversationId}
+        aria-label="Delete current conversation"
+        title="Delete current conversation"
+      >
+        <Trash2 className="h-4 w-4" aria-hidden="true" />
+      </Button>
+      {error && (
+        <p className="basis-full px-1 text-xs text-red-600 dark:text-red-300" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

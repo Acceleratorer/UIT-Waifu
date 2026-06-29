@@ -13,7 +13,14 @@ import {
   writeDefaultMode,
   writeSessionMessages,
 } from "../preferences";
-import { ensureRemoteConversation, saveRemoteMessages } from "../remote-history";
+import {
+  deleteRemoteConversation,
+  ensureRemoteConversation,
+  listRemoteConversations,
+  loadRemoteMessages,
+  saveRemoteMessages,
+  type RemoteConversation,
+} from "../remote-history";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const CHAT_ENDPOINT =
@@ -49,6 +56,13 @@ interface UseChatResult {
   send: () => void;
   stop: () => void;
   clear: () => void;
+  conversations: RemoteConversation[];
+  activeConversationId: string | null;
+  historyStatus: "unavailable" | "loading" | "signed-out" | "ready" | "error";
+  historyError: string | null;
+  refreshConversations: () => void;
+  loadConversation: (conversationId: string) => void;
+  deleteConversation: (conversationId: string) => void;
 }
 
 export function useChat(): UseChatResult {
@@ -58,10 +72,51 @@ export function useChat(): UseChatResult {
   const [error, setError] = useState<string | null>(null);
   const [mode, setModeState] = useState<ModeId>(DEFAULT_MODE);
   const [hasLoadedSession, setHasLoadedSession] = useState(false);
+  const [conversations, setConversations] = useState<RemoteConversation[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [historyStatus, setHistoryStatus] = useState<
+    "unavailable" | "loading" | "signed-out" | "ready" | "error"
+  >(SUPABASE_CONFIG ? "loading" : "unavailable");
+  const [historyError, setHistoryError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const supabaseRef = useRef<SupabaseClient | null>(null);
   const userIdRef = useRef<string | null>(null);
   const conversationIdRef = useRef<string | null>(null);
+
+  const refreshConversations = useCallback(() => {
+    const supabase = supabaseRef.current;
+    const userId = userIdRef.current;
+
+    if (!SUPABASE_CONFIG) {
+      setHistoryStatus("unavailable");
+      return;
+    }
+
+    if (!supabase) {
+      setHistoryStatus("loading");
+      return;
+    }
+
+    if (!userId) {
+      setConversations([]);
+      setHistoryStatus("signed-out");
+      setHistoryError(null);
+      return;
+    }
+
+    setHistoryStatus("loading");
+    setHistoryError(null);
+
+    listRemoteConversations(supabase, userId)
+      .then((items) => {
+        setConversations(items);
+        setHistoryStatus("ready");
+      })
+      .catch((err) => {
+        setHistoryError((err as Error).message || "Could not load history.");
+        setHistoryStatus("error");
+      });
+  }, []);
 
   useEffect(() => {
     setModeState(readDefaultMode());
@@ -91,6 +146,8 @@ export function useChat(): UseChatResult {
         if (!isMounted) return;
         userIdRef.current = data.session?.user.id ?? null;
         conversationIdRef.current = null;
+        setActiveConversationId(null);
+        refreshConversations();
       });
 
       const {
@@ -98,6 +155,8 @@ export function useChat(): UseChatResult {
       } = supabase.auth.onAuthStateChange((_event, session) => {
         userIdRef.current = session?.user.id ?? null;
         conversationIdRef.current = null;
+        setActiveConversationId(null);
+        refreshConversations();
       });
 
       unsubscribe = () => subscription.unsubscribe();
@@ -107,7 +166,7 @@ export function useChat(): UseChatResult {
       isMounted = false;
       unsubscribe?.();
     };
-  }, []);
+  }, [refreshConversations]);
 
   const setMode = useCallback((nextMode: ModeId) => {
     setModeState(nextMode);
@@ -124,6 +183,7 @@ export function useChat(): UseChatResult {
     abortRef.current?.abort();
     abortRef.current = null;
     conversationIdRef.current = null;
+    setActiveConversationId(null);
     setMessages([]);
     setError(null);
     setIsStreaming(false);
@@ -150,16 +210,80 @@ export function useChat(): UseChatResult {
 
         if (!conversationId) return;
         conversationIdRef.current = conversationId;
+        setActiveConversationId(conversationId);
 
         await saveRemoteMessages(supabase, conversationId, [
           { role: "user", content: userContent },
           { role: "assistant", content: assistantContent },
         ]);
+        refreshConversations();
       } catch (err) {
         console.warn("Could not save chat history.", err);
       }
     },
-    []
+    [refreshConversations]
+  );
+
+  const loadConversation = useCallback(
+    (conversationId: string) => {
+      if (isStreaming) return;
+
+      const supabase = supabaseRef.current;
+      if (!supabase) return;
+
+      const conversation = conversations.find((item) => item.id === conversationId);
+      setHistoryStatus("loading");
+      setHistoryError(null);
+
+      loadRemoteMessages(supabase, conversationId)
+        .then((remoteMessages) => {
+          abortRef.current?.abort();
+          abortRef.current = null;
+          conversationIdRef.current = conversationId;
+          setActiveConversationId(conversationId);
+          if (conversation) {
+            setModeState(conversation.mode);
+            writeDefaultMode(conversation.mode);
+          }
+          setMessages(remoteMessages);
+          setError(null);
+          setIsStreaming(false);
+          setHistoryStatus("ready");
+        })
+        .catch((err) => {
+          setHistoryError((err as Error).message || "Could not load conversation.");
+          setHistoryStatus("error");
+        });
+    },
+    [conversations, isStreaming]
+  );
+
+  const deleteConversation = useCallback(
+    (conversationId: string) => {
+      if (isStreaming) return;
+
+      const supabase = supabaseRef.current;
+      if (!supabase) return;
+
+      setHistoryStatus("loading");
+      setHistoryError(null);
+
+      deleteRemoteConversation(supabase, conversationId)
+        .then(() => {
+          if (conversationIdRef.current === conversationId) {
+            conversationIdRef.current = null;
+            setActiveConversationId(null);
+            setMessages([]);
+            clearSessionMessages();
+          }
+          refreshConversations();
+        })
+        .catch((err) => {
+          setHistoryError((err as Error).message || "Could not delete conversation.");
+          setHistoryStatus("error");
+        });
+    },
+    [isStreaming, refreshConversations]
   );
 
   const send = useCallback(() => {
@@ -274,5 +398,12 @@ export function useChat(): UseChatResult {
     send,
     stop,
     clear,
+    conversations,
+    activeConversationId,
+    historyStatus,
+    historyError,
+    refreshConversations,
+    loadConversation,
+    deleteConversation,
   };
 }

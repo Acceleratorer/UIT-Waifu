@@ -3,6 +3,8 @@ import { describe, it } from "node:test";
 import {
   buildMessageRows,
   createConversationTitle,
+  normalizeRemoteConversationRow,
+  normalizeRemoteMessageRow,
 } from "../../features/chat/remote-history";
 
 describe("chat remote history", () => {
@@ -34,5 +36,51 @@ describe("chat remote history", () => {
         },
       ]
     );
+  });
+
+  it("normalizes remote conversation rows defensively", () => {
+    assert.deepEqual(
+      normalizeRemoteConversationRow({
+        id: "conversation-id",
+        title: "  Study calculus  ",
+        mode: "study",
+        updated_at: "2026-06-29T10:00:00.000Z",
+      }),
+      {
+        id: "conversation-id",
+        title: "Study calculus",
+        mode: "study",
+        updatedAt: "2026-06-29T10:00:00.000Z",
+      }
+    );
+
+    assert.deepEqual(
+      normalizeRemoteConversationRow({
+        id: "conversation-id",
+        title: "",
+        mode: "unknown",
+        created_at: "2026-06-29T09:00:00.000Z",
+      }),
+      {
+        id: "conversation-id",
+        title: "New conversation",
+        mode: "general",
+        updatedAt: "2026-06-29T09:00:00.000Z",
+      }
+    );
+
+    assert.equal(normalizeRemoteConversationRow({ title: "missing id" }), null);
+  });
+
+  it("normalizes remote message rows for the chat UI", () => {
+    assert.deepEqual(
+      normalizeRemoteMessageRow({ role: "assistant", content: "hello" }),
+      { role: "assistant", content: "hello" }
+    );
+    assert.equal(
+      normalizeRemoteMessageRow({ role: "system", content: "ignore" }),
+      null
+    );
+    assert.equal(normalizeRemoteMessageRow({ role: "user", content: 123 }), null);
   });
 });

@@ -28,6 +28,12 @@ export const SECURITY_HEADERS = {
   "Content-Security-Policy-Report-Only": CONTENT_SECURITY_POLICY_REPORT_ONLY,
 } as const;
 
+export const API_JSON_ERROR_HEADERS = {
+  ...SECURITY_HEADERS,
+  "Content-Type": "application/json",
+  "Cache-Control": "no-store",
+} as const;
+
 export function isJsonContentType(contentType: string | null): boolean {
   if (!contentType) return false;
   return contentType.toLowerCase().split(";")[0].trim() === "application/json";

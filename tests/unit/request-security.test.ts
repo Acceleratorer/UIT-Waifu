@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  API_JSON_ERROR_HEADERS,
   CONTENT_SECURITY_POLICY_REPORT_ONLY,
   getUrlHost,
   isJsonContentType,
@@ -60,5 +61,11 @@ describe("request security helpers", () => {
       CONTENT_SECURITY_POLICY_REPORT_ONLY,
       /connect-src .*https:\/\/\*\.supabase\.co/
     );
+  });
+
+  it("marks API JSON error responses as non-cacheable", () => {
+    assert.equal(API_JSON_ERROR_HEADERS["Cache-Control"], "no-store");
+    assert.equal(API_JSON_ERROR_HEADERS["Content-Type"], "application/json");
+    assert.equal(API_JSON_ERROR_HEADERS["X-Content-Type-Options"], "nosniff");
   });
 });

@@ -32,6 +32,7 @@ function json_error_response(int $status, string $code, string $message, array $
     http_response_code($status);
     security_headers();
     header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
     echo json_encode([
         'error' => [
             'code' => $code,
@@ -40,6 +41,23 @@ function json_error_response(int $status, string $code, string $message, array $
         ],
     ], JSON_UNESCAPED_SLASHES);
     exit;
+}
+
+function enforce_content_length_limit(): void
+{
+    $contentLength = $_SERVER['CONTENT_LENGTH'] ?? '';
+    if (!is_string($contentLength)) {
+        return;
+    }
+
+    $normalizedLength = trim($contentLength);
+    if (
+        $normalizedLength !== '' &&
+        ctype_digit($normalizedLength) &&
+        (int) $normalizedLength > MAX_CHAT_REQUEST_BYTES
+    ) {
+        json_error_response(413, 'payload_too_large', 'Chat request is too large.');
+    }
 }
 
 function client_rate_limit_key(): string
@@ -408,12 +426,11 @@ function call_anthropic(string $url, string $apiKey, string $model, string $mode
     ]);
 
     $response = curl_exec($ch);
-    $curlError = curl_error($ch);
     $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
     if (!is_string($response)) {
-        json_error_response(500, 'internal_error', $curlError !== '' ? $curlError : 'Could not reach the chat provider.');
+        json_error_response(500, 'internal_error', 'Could not reach the chat provider.');
     }
 
     if ($status < 200 || $status >= 300) {
@@ -445,6 +462,7 @@ function call_anthropic(string $url, string $apiKey, string $model, string $mode
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     security_headers();
     header('Allow: POST, OPTIONS');
+    header('Cache-Control: no-store');
     http_response_code(204);
     exit;
 }
@@ -456,6 +474,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 enforce_same_origin_request();
 enforce_json_content_type();
+enforce_content_length_limit();
 enforce_chat_rate_limit();
 $privateConfig = read_private_config();
 $apiKey = anthropic_key($privateConfig);

@@ -12,6 +12,7 @@ import {
 } from "../../lib/ai/providers";
 import { serializeChatStreamEvent } from "../../lib/ai/stream-events";
 import {
+  API_JSON_ERROR_HEADERS,
   isJsonContentType,
   isSameOriginRequest,
   MAX_CHAT_REQUEST_BYTES,
@@ -40,7 +41,7 @@ function jsonErrorResponse(
 ): Response {
   return new Response(JSON.stringify({ error: { code, message, details } }), {
     status,
-    headers: { ...SECURITY_HEADERS, "Content-Type": "application/json" },
+    headers: API_JSON_ERROR_HEADERS,
   });
 }
 

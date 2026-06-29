@@ -9,6 +9,7 @@ const CHAT_RATE_LIMIT_WINDOW_SECONDS = 60;
 const DEFAULT_ANTHROPIC_MODEL = 'claude-haiku-4-5';
 const DEFAULT_ANTHROPIC_BASE_URL = 'https://api.anthropic.com';
 const ANTHROPIC_VERSION = '2023-06-01';
+const CONTENT_SECURITY_POLICY_REPORT_ONLY = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data: blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.anthropic.com https://openrouter.ai https://*.supabase.co wss://*.supabase.co; worker-src 'self' blob:; manifest-src 'self'; media-src 'self'";
 
 function security_headers(): void
 {
@@ -18,6 +19,7 @@ function security_headers(): void
     header('Cross-Origin-Opener-Policy: same-origin');
     header('Cross-Origin-Resource-Policy: same-origin');
     header('Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()');
+    header('Content-Security-Policy-Report-Only: ' . CONTENT_SECURITY_POLICY_REPORT_ONLY);
 
     if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
         header('Strict-Transport-Security: max-age=15552000');

@@ -15,6 +15,7 @@ import {
   isJsonContentType,
   isSameOriginRequest,
   MAX_CHAT_REQUEST_BYTES,
+  SECURITY_HEADERS,
 } from "../../lib/http/request-security";
 
 interface Env {
@@ -39,7 +40,7 @@ function jsonErrorResponse(
 ): Response {
   return new Response(JSON.stringify({ error: { code, message, details } }), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: { ...SECURITY_HEADERS, "Content-Type": "application/json" },
   });
 }
 
@@ -183,6 +184,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   return new Response(stream, {
     headers: {
+      ...SECURITY_HEADERS,
       "Content-Type": "text/event-stream; charset=utf-8",
       "Cache-Control": "no-cache",
       Connection: "keep-alive",

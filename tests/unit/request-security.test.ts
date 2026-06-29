@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  CONTENT_SECURITY_POLICY_REPORT_ONLY,
   getUrlHost,
   isJsonContentType,
   isSameOriginRequest,
+  SECURITY_HEADERS,
 } from "../../lib/http/request-security";
 
 describe("request security helpers", () => {
@@ -45,5 +47,18 @@ describe("request security helpers", () => {
       true
     );
   });
-});
 
+  it("defines a report-only CSP with high-value browser restrictions", () => {
+    assert.equal(
+      SECURITY_HEADERS["Content-Security-Policy-Report-Only"],
+      CONTENT_SECURITY_POLICY_REPORT_ONLY
+    );
+    assert.match(CONTENT_SECURITY_POLICY_REPORT_ONLY, /object-src 'none'/);
+    assert.match(CONTENT_SECURITY_POLICY_REPORT_ONLY, /base-uri 'self'/);
+    assert.match(CONTENT_SECURITY_POLICY_REPORT_ONLY, /frame-ancestors 'self'/);
+    assert.match(
+      CONTENT_SECURITY_POLICY_REPORT_ONLY,
+      /connect-src .*https:\/\/\*\.supabase\.co/
+    );
+  });
+});

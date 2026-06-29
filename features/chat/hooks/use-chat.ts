@@ -1,9 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ChatMessage } from "../types";
 import { DEFAULT_MODE, type ModeId } from "@/data/modes";
 import { parseChatStreamData } from "@/lib/ai/stream-events";
+import { getSupabasePublicConfig } from "@/lib/supabase/config";
 import {
   clearSessionMessages,
   readDefaultMode,
@@ -11,10 +13,15 @@ import {
   writeDefaultMode,
   writeSessionMessages,
 } from "../preferences";
+import { ensureRemoteConversation, saveRemoteMessages } from "../remote-history";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const CHAT_ENDPOINT =
   process.env.NEXT_PUBLIC_CHAT_ENDPOINT || `${BASE_PATH}/api/chat`;
+const SUPABASE_CONFIG = getSupabasePublicConfig({
+  NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+});
 
 async function readErrorMessage(res: Response): Promise<string> {
   const fallback = `Request failed (${res.status})`;
@@ -52,6 +59,9 @@ export function useChat(): UseChatResult {
   const [mode, setModeState] = useState<ModeId>(DEFAULT_MODE);
   const [hasLoadedSession, setHasLoadedSession] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const supabaseRef = useRef<SupabaseClient | null>(null);
+  const userIdRef = useRef<string | null>(null);
+  const conversationIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     setModeState(readDefaultMode());
@@ -63,6 +73,41 @@ export function useChat(): UseChatResult {
     if (!hasLoadedSession) return;
     writeSessionMessages(messages);
   }, [hasLoadedSession, messages]);
+
+  useEffect(() => {
+    if (!SUPABASE_CONFIG) return;
+
+    let isMounted = true;
+    let unsubscribe: (() => void) | null = null;
+
+    import("@/lib/supabase/client").then(({ getSupabaseBrowserClient }) => {
+      if (!isMounted) return;
+
+      const supabase = getSupabaseBrowserClient(SUPABASE_CONFIG);
+      supabaseRef.current = supabase;
+      if (!supabase) return;
+
+      supabase.auth.getSession().then(({ data }) => {
+        if (!isMounted) return;
+        userIdRef.current = data.session?.user.id ?? null;
+        conversationIdRef.current = null;
+      });
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        userIdRef.current = session?.user.id ?? null;
+        conversationIdRef.current = null;
+      });
+
+      unsubscribe = () => subscription.unsubscribe();
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribe?.();
+    };
+  }, []);
 
   const setMode = useCallback((nextMode: ModeId) => {
     setModeState(nextMode);
@@ -78,11 +123,44 @@ export function useChat(): UseChatResult {
   const clear = useCallback(() => {
     abortRef.current?.abort();
     abortRef.current = null;
+    conversationIdRef.current = null;
     setMessages([]);
     setError(null);
     setIsStreaming(false);
     clearSessionMessages();
   }, []);
+
+  const saveCompletedTurn = useCallback(
+    async (userContent: string, assistantContent: string, activeMode: ModeId) => {
+      const supabase = supabaseRef.current;
+      const userId = userIdRef.current;
+
+      if (!supabase || !userId || assistantContent.trim().length === 0) {
+        return;
+      }
+
+      try {
+        const conversationId = await ensureRemoteConversation({
+          supabase,
+          existingConversationId: conversationIdRef.current,
+          userId,
+          mode: activeMode,
+          firstMessage: userContent,
+        });
+
+        if (!conversationId) return;
+        conversationIdRef.current = conversationId;
+
+        await saveRemoteMessages(supabase, conversationId, [
+          { role: "user", content: userContent },
+          { role: "assistant", content: assistantContent },
+        ]);
+      } catch (err) {
+        console.warn("Could not save chat history.", err);
+      }
+    },
+    []
+  );
 
   const send = useCallback(() => {
     const text = input.trim();
@@ -119,6 +197,7 @@ export function useChat(): UseChatResult {
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
+        let assistantContent = "";
 
         for (;;) {
           const { done, value } = await reader.read();
@@ -136,6 +215,7 @@ export function useChat(): UseChatResult {
             if (!parsed) continue;
 
             if (parsed.type === "delta" && parsed.delta) {
+              assistantContent += parsed.delta;
               setMessages((prev) => {
                 const next = [...prev];
                 const last = next[next.length - 1];
@@ -154,6 +234,8 @@ export function useChat(): UseChatResult {
             }
           }
         }
+
+        await saveCompletedTurn(text, assistantContent, mode);
       } catch (err) {
         if ((err as Error).name === "AbortError") {
           setMessages((prev) => {
@@ -179,7 +261,7 @@ export function useChat(): UseChatResult {
         abortRef.current = null;
       }
     })();
-  }, [input, isStreaming, messages, mode]);
+  }, [input, isStreaming, messages, mode, saveCompletedTurn]);
 
   return {
     messages,

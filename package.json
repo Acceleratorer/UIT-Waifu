@@ -9,10 +9,11 @@
     "start": "next start",
     "lint": "next lint",
     "secrets:scan": "node scripts/scan-secrets.mjs",
-    "test": "tsx --test tests/unit/chat-validator.test.ts tests/unit/chat-providers.test.ts tests/unit/chat-preferences.test.ts tests/unit/modes.test.ts tests/unit/prompts.test.ts",
+    "test": "tsx --test tests/unit/chat-validator.test.ts tests/unit/chat-providers.test.ts tests/unit/chat-preferences.test.ts tests/unit/modes.test.ts tests/unit/prompts.test.ts tests/unit/supabase-config.test.ts",
     "typecheck": "tsc --noEmit --project tsconfig.typecheck.json && tsc --noEmit --project tsconfig.functions.json"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.21.0",

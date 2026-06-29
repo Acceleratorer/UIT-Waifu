@@ -3,13 +3,31 @@ declare(strict_types=1);
 
 const MAX_CHAT_MESSAGES = 50;
 const MAX_CHAT_CONTENT_CHARS = 12000;
+const MAX_CHAT_REQUEST_BYTES = 750000;
+const CHAT_RATE_LIMIT_REQUESTS = 30;
+const CHAT_RATE_LIMIT_WINDOW_SECONDS = 60;
 const DEFAULT_ANTHROPIC_MODEL = 'claude-haiku-4-5';
 const DEFAULT_ANTHROPIC_BASE_URL = 'https://api.anthropic.com';
 const ANTHROPIC_VERSION = '2023-06-01';
 
+function security_headers(): void
+{
+    header('X-Content-Type-Options: nosniff');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    header('X-Frame-Options: SAMEORIGIN');
+    header('Cross-Origin-Opener-Policy: same-origin');
+    header('Cross-Origin-Resource-Policy: same-origin');
+    header('Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()');
+
+    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+        header('Strict-Transport-Security: max-age=15552000');
+    }
+}
+
 function json_error_response(int $status, string $code, string $message, array $details = [])
 {
     http_response_code($status);
+    security_headers();
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode([
         'error' => [
@@ -19,6 +37,62 @@ function json_error_response(int $status, string $code, string $message, array $
         ],
     ], JSON_UNESCAPED_SLASHES);
     exit;
+}
+
+function client_rate_limit_key(): string
+{
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    return hash('sha256', $ip);
+}
+
+function enforce_chat_rate_limit(): void
+{
+    $dir = dirname(__DIR__, 3) . '/tmp/uit-waifu-rate-limit';
+    if (!is_dir($dir) && !mkdir($dir, 0700, true) && !is_dir($dir)) {
+        return;
+    }
+
+    $file = $dir . '/' . client_rate_limit_key() . '.json';
+    $now = time();
+    $windowStart = $now - CHAT_RATE_LIMIT_WINDOW_SECONDS;
+    $handle = fopen($file, 'c+');
+    if ($handle === false) {
+        return;
+    }
+
+    $locked = false;
+    try {
+        if (!flock($handle, LOCK_EX)) {
+            return;
+        }
+        $locked = true;
+
+        $raw = stream_get_contents($handle);
+        $timestamps = is_string($raw) && $raw !== '' ? json_decode($raw, true) : [];
+        if (!is_array($timestamps)) {
+            $timestamps = [];
+        }
+
+        $timestamps = array_values(array_filter($timestamps, static function ($value) use ($windowStart): bool {
+            return is_int($value) && $value >= $windowStart;
+        }));
+
+        if (count($timestamps) >= CHAT_RATE_LIMIT_REQUESTS) {
+            $retryAfter = max(1, CHAT_RATE_LIMIT_WINDOW_SECONDS - ($now - min($timestamps)));
+            header('Retry-After: ' . $retryAfter);
+            json_error_response(429, 'rate_limited', 'Too many chat requests. Please wait and try again.');
+        }
+
+        $timestamps[] = $now;
+        ftruncate($handle, 0);
+        rewind($handle);
+        fwrite($handle, json_encode($timestamps));
+    } finally {
+        if ($locked) {
+            flock($handle, LOCK_UN);
+        }
+        fclose($handle);
+    }
 }
 
 function read_private_config(): array
@@ -201,6 +275,10 @@ function read_chat_request(): array
         json_error_response(400, 'validation_error', 'Invalid JSON body.');
     }
 
+    if (strlen($rawBody) > MAX_CHAT_REQUEST_BYTES) {
+        json_error_response(413, 'payload_too_large', 'Chat request is too large.');
+    }
+
     $body = json_decode($rawBody, true);
     if (!is_array($body)) {
         json_error_response(400, 'validation_error', 'Invalid JSON body.');
@@ -312,14 +390,18 @@ function call_anthropic(string $url, string $apiKey, string $model, string $mode
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    security_headers();
+    header('Allow: POST, OPTIONS');
     http_response_code(204);
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Allow: POST, OPTIONS');
     json_error_response(405, 'method_not_allowed', 'Method not allowed.');
 }
 
+enforce_chat_rate_limit();
 $privateConfig = read_private_config();
 $apiKey = anthropic_key($privateConfig);
 if ($apiKey === '') {
@@ -332,6 +414,7 @@ $request = read_chat_request();
 $reply = call_anthropic($url, $apiKey, $model, $request['mode'], $request['messages']);
 
 header('Content-Type: text/event-stream; charset=utf-8');
+security_headers();
 header('Cache-Control: no-cache');
 header('X-Accel-Buffering: no');
 echo 'data: ' . json_encode(['type' => 'delta', 'delta' => $reply], JSON_UNESCAPED_SLASHES) . "\n\n";

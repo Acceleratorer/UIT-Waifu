@@ -128,16 +128,18 @@ Database setup:
 - [ ] Create Supabase project
 - [ ] Configure PostgreSQL
 - [ ] Configure Supabase Auth or NextAuth
-- [ ] Create profiles table
-- [ ] Create conversations table
-- [ ] Create messages table
-- [ ] Add row-level security policies
+- [x] Create profiles table migration
+- [x] Create conversations table migration
+- [x] Create messages table migration
+- [x] Add row-level security policy migration
+- [ ] Apply schema and RLS to production Supabase
+- [x] Add production Supabase preflight and RLS verification query
 
 Auth features:
 
 - [x] Magic-link sign in UI
 - [x] Local sign out
-- [ ] User profile
+- [x] User profile
 - [x] Protected chat history UI states
 - [ ] Production auth flow verified against Supabase
 
@@ -146,7 +148,8 @@ Conversation features:
 - [x] Save conversations from completed chat turns
 - [x] Load previous conversations
 - [x] Delete conversations
-- [ ] Rename conversations
+- [x] Rename conversations
+- [x] Export and wipe saved account data
 - [ ] Production history persistence verified against Supabase RLS
 
 Success criteria:

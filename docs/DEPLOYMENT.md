@@ -155,6 +155,20 @@ environment keys, or the JSON-shaped config used by local agent tooling with an
 3. Apply row-level security policies before going live so users can only read their own rows.
 4. Create the storage bucket for uploads and set its access policy.
 
+For the current DirectAdmin static deployment, `NEXT_PUBLIC_SUPABASE_URL` and
+`NEXT_PUBLIC_SUPABASE_ANON_KEY` are embedded into the browser bundle at build
+time. After adding or changing these values, rebuild the static export and
+redeploy `/waifu`.
+
+Before promoting Supabase-backed auth/history to production:
+
+1. Apply `supabase/migrations/20260629000000_initial_phase3_schema.sql`.
+2. Run `supabase/verify_phase3_security.sql` in the Supabase SQL Editor and confirm every row reports `ok`.
+3. Configure Supabase Auth site URL to `https://accel.io.vn/waifu`.
+4. Add `https://accel.io.vn/waifu/settings` to the allowed redirect URLs for magic links.
+5. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local` or the build environment.
+6. Run `npm run supabase:preflight` before the production build.
+
 ---
 
 ## Reference-Informed Deployment Direction

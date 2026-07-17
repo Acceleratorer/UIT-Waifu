@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { MODES, type ModeId } from "@/data/modes";
 import { readDefaultMode, writeDefaultMode } from "@/features/chat/preferences";
 import { AuthPanel } from "./auth-panel";
+import { PrivacyPanel } from "./privacy-panel";
 import { ProfilePanel } from "./profile-panel";
 
 export function SettingsPanel() {
@@ -44,6 +45,7 @@ export function SettingsPanel() {
 
         <AuthPanel />
         <ProfilePanel />
+        <PrivacyPanel />
       </div>
     </section>
   );

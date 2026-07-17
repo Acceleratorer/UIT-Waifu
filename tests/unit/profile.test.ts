@@ -4,6 +4,7 @@ import {
   buildProfileUpsertRow,
   normalizeProfileRow,
 } from "../../features/profile/profile";
+import { buildAccountDataDeleteTargets } from "../../features/profile/account-data";
 
 describe("profile helpers", () => {
   it("normalizes profile rows for the settings form", () => {
@@ -55,5 +56,12 @@ describe("profile helpers", () => {
         year: null,
       }
     );
+  });
+
+  it("builds account data deletion targets", () => {
+    assert.deepEqual(buildAccountDataDeleteTargets("user-id"), [
+      { table: "profiles", column: "user_id", value: "user-id" },
+      { table: "conversations", column: "user_id", value: "user-id" },
+    ]);
   });
 });

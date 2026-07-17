@@ -135,23 +135,25 @@ Database setup:
 
 Auth features:
 
-- [ ] Sign in
-- [ ] Sign out
+- [x] Magic-link sign in UI
+- [x] Local sign out
 - [ ] User profile
-- [ ] Protected chat history
+- [x] Protected chat history UI states
+- [ ] Production auth flow verified against Supabase
 
 Conversation features:
 
-- [ ] Save conversations
-- [ ] Load previous conversations
-- [ ] Delete conversations
+- [x] Save conversations from completed chat turns
+- [x] Load previous conversations
+- [x] Delete conversations
 - [ ] Rename conversations
+- [ ] Production history persistence verified against Supabase RLS
 
 Success criteria:
 
-- User can sign in
-- Messages are saved
-- User can reopen chat history
+- [ ] User can sign in in production
+- [ ] Messages are saved in production
+- [ ] User can reopen chat history in production
 
 ---
 

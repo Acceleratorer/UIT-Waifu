@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { History, RefreshCw, Trash2 } from "lucide-react";
+import { History, Pencil, RefreshCw, Trash2 } from "lucide-react";
 import { ModelStage } from "@/components/avatar/model-stage";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
@@ -35,6 +35,7 @@ export function ChatWindow() {
     historyError,
     refreshConversations,
     loadConversation,
+    renameConversation,
     deleteConversation,
   } = useChat();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -89,6 +90,7 @@ export function ChatWindow() {
               disabled={isStreaming}
               onRefresh={refreshConversations}
               onLoad={loadConversation}
+              onRename={renameConversation}
               onDelete={deleteConversation}
             />
             <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
@@ -135,6 +137,7 @@ function HistoryControls({
   disabled,
   onRefresh,
   onLoad,
+  onRename,
   onDelete,
 }: {
   conversations: { id: string; title: string }[];
@@ -144,6 +147,7 @@ function HistoryControls({
   disabled: boolean;
   onRefresh: () => void;
   onLoad: (conversationId: string) => void;
+  onRename: (conversationId: string, title: string) => void;
   onDelete: (conversationId: string) => void;
 }) {
   if (status === "unavailable") return null;
@@ -165,6 +169,17 @@ function HistoryControls({
       return;
     }
     onDelete(activeConversationId);
+  }
+
+  function handleRename() {
+    if (!activeConversationId || typeof window === "undefined") return;
+
+    const currentTitle =
+      conversations.find((conversation) => conversation.id === activeConversationId)
+        ?.title ?? "";
+    const nextTitle = window.prompt("Rename conversation", currentTitle);
+    if (nextTitle === null || nextTitle.trim() === "") return;
+    onRename(activeConversationId, nextTitle);
   }
 
   return (
@@ -201,6 +216,16 @@ function HistoryControls({
         title="Refresh conversation history"
       >
         <RefreshCw className="h-4 w-4" aria-hidden="true" />
+      </Button>
+      <Button
+        onClick={handleRename}
+        variant="ghost"
+        size="icon"
+        disabled={disabled || isBusy || !activeConversationId}
+        aria-label="Rename current conversation"
+        title="Rename current conversation"
+      >
+        <Pencil className="h-4 w-4" aria-hidden="true" />
       </Button>
       <Button
         onClick={handleDelete}

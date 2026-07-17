@@ -18,6 +18,7 @@ import {
   ensureRemoteConversation,
   listRemoteConversations,
   loadRemoteMessages,
+  renameRemoteConversation,
   saveRemoteMessages,
   type RemoteConversation,
 } from "../remote-history";
@@ -62,6 +63,7 @@ interface UseChatResult {
   historyError: string | null;
   refreshConversations: () => void;
   loadConversation: (conversationId: string) => void;
+  renameConversation: (conversationId: string, title: string) => void;
   deleteConversation: (conversationId: string) => void;
 }
 
@@ -286,6 +288,38 @@ export function useChat(): UseChatResult {
     [isStreaming, refreshConversations]
   );
 
+  const renameConversation = useCallback(
+    (conversationId: string, title: string) => {
+      if (isStreaming) return;
+
+      const supabase = supabaseRef.current;
+      const normalizedTitle = title.trim();
+      if (!supabase || !normalizedTitle) return;
+
+      setHistoryStatus("loading");
+      setHistoryError(null);
+
+      renameRemoteConversation(supabase, conversationId, normalizedTitle)
+        .then((updatedConversation) => {
+          if (updatedConversation) {
+            setConversations((prev) =>
+              prev.map((conversation) =>
+                conversation.id === updatedConversation.id
+                  ? updatedConversation
+                  : conversation
+              )
+            );
+          }
+          refreshConversations();
+        })
+        .catch((err) => {
+          setHistoryError((err as Error).message || "Could not rename conversation.");
+          setHistoryStatus("error");
+        });
+    },
+    [isStreaming, refreshConversations]
+  );
+
   const send = useCallback(() => {
     const text = input.trim();
     if (!text || isStreaming) return;
@@ -404,6 +438,7 @@ export function useChat(): UseChatResult {
     historyError,
     refreshConversations,
     loadConversation,
+    renameConversation,
     deleteConversation,
   };
 }

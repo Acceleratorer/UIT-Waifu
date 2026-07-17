@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  buildConversationRenamePatch,
   buildMessageRows,
   createConversationTitle,
   normalizeRemoteConversationRow,
@@ -36,6 +37,21 @@ describe("chat remote history", () => {
         },
       ]
     );
+  });
+
+  it("builds normalized conversation rename patches", () => {
+    assert.deepEqual(
+      buildConversationRenamePatch(
+        "   New   plan\nfor OS exam   ",
+        "2026-07-17T08:00:00.000Z"
+      ),
+      {
+        title: "New plan for OS exam",
+        updated_at: "2026-07-17T08:00:00.000Z",
+      }
+    );
+
+    assert.equal(buildConversationRenamePatch("x".repeat(80)).title.length, 64);
   });
 
   it("normalizes remote conversation rows defensively", () => {

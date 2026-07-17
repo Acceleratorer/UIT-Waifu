@@ -30,6 +30,16 @@ export function buildMessageRows(
   }));
 }
 
+export function buildConversationRenamePatch(
+  title: string,
+  updatedAt = new Date().toISOString()
+) {
+  return {
+    title: createConversationTitle(title),
+    updated_at: updatedAt,
+  };
+}
+
 export function normalizeRemoteConversationRow(
   value: unknown
 ): RemoteConversation | null {
@@ -115,6 +125,23 @@ export async function deleteRemoteConversation(
     .eq("id", conversationId);
 
   if (error) throw error;
+}
+
+export async function renameRemoteConversation(
+  supabase: SupabaseClient,
+  conversationId: string,
+  title: string
+): Promise<RemoteConversation | null> {
+  const { data, error } = await supabase
+    .from("conversations")
+    .update(buildConversationRenamePatch(title))
+    .eq("id", conversationId)
+    .select("id,title,mode,created_at,updated_at")
+    .single();
+
+  if (error) throw error;
+
+  return normalizeRemoteConversationRow(data);
 }
 
 export async function ensureRemoteConversation({

@@ -3,11 +3,31 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
-import { deleteAccountData } from "@/features/profile/account-data";
+import { deleteAccountData, exportAccountData } from "@/features/profile/account-data";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { getSupabasePublicConfig } from "@/lib/supabase/config";
 
-type PrivacyStatus = "loading" | "signed-out" | "ready" | "deleting" | "error";
+type PrivacyStatus =
+  | "loading"
+  | "signed-out"
+  | "ready"
+  | "exporting"
+  | "deleting"
+  | "error";
+
+function downloadJsonFile(filename: string, data: unknown) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
 
 export function PrivacyPanel() {
   const supabase = useMemo(
@@ -61,6 +81,25 @@ export function PrivacyPanel() {
 
   if (!supabase) return null;
 
+  async function handleExportData() {
+    if (!supabase || !session) return;
+
+    setStatus("exporting");
+    setMessage(null);
+    setError(null);
+
+    try {
+      const accountData = await exportAccountData(supabase, session.user.id);
+      const date = accountData.exportedAt.slice(0, 10);
+      downloadJsonFile(`uit-waifu-data-${date}.json`, accountData);
+      setStatus("ready");
+      setMessage("Saved data export started.");
+    } catch (err) {
+      setError((err as Error).message || "Could not export saved data.");
+      setStatus("error");
+    }
+  }
+
   async function handleDeleteData() {
     if (!supabase || !session || typeof window === "undefined") return;
 
@@ -83,7 +122,8 @@ export function PrivacyPanel() {
     }
   }
 
-  const isBusy = status === "loading" || status === "deleting";
+  const isBusy =
+    status === "loading" || status === "exporting" || status === "deleting";
 
   return (
     <section className="border-t border-foreground/10 pt-6">
@@ -93,18 +133,29 @@ export function PrivacyPanel() {
           <p className="mt-1 text-sm text-foreground/55">
             {status === "signed-out"
               ? "Sign in to manage saved account data."
-              : "Delete saved profile data and conversation history from Supabase."}
+              : "Export or delete saved profile data and conversation history."}
           </p>
         </div>
         {isBusy && (
           <span className="rounded-full border border-foreground/10 px-3 py-1 text-xs text-foreground/55">
-            {status === "deleting" ? "Deleting" : "Loading"}
+            {status === "exporting"
+              ? "Exporting"
+              : status === "deleting"
+                ? "Deleting"
+                : "Loading"}
           </span>
         )}
       </div>
 
       {status !== "signed-out" && (
-        <div className="mt-4">
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button
+            onClick={handleExportData}
+            variant="outline"
+            disabled={isBusy || !session}
+          >
+            {status === "exporting" ? "Exporting..." : "Export saved data"}
+          </Button>
           <Button
             onClick={handleDeleteData}
             variant="secondary"

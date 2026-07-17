@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { MODES, type ModeId } from "@/data/modes";
 import { readDefaultMode, writeDefaultMode } from "@/features/chat/preferences";
 import { AuthPanel } from "./auth-panel";
+import { ProfilePanel } from "./profile-panel";
 
 export function SettingsPanel() {
   const [defaultMode, setDefaultMode] = useState<ModeId>("general");
@@ -42,6 +43,7 @@ export function SettingsPanel() {
         <p className="text-sm text-foreground/55">Saved on this device.</p>
 
         <AuthPanel />
+        <ProfilePanel />
       </div>
     </section>
   );

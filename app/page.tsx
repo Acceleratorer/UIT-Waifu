@@ -57,6 +57,12 @@ export default function HomePage() {
             >
               Open stage
             </Link>
+            <Link
+              href="/documents"
+              className="rounded-xl border border-teal-300/35 bg-teal-500/10 px-5 py-3 text-center font-semibold text-teal-800 transition hover:bg-teal-500/15 dark:text-teal-100"
+            >
+              Documents
+            </Link>
             <a
               href="https://github.com/Acceleratorer/UIT-Waifu"
               target="_blank"

@@ -10,7 +10,7 @@
     "lint": "next lint",
     "secrets:scan": "node scripts/scan-secrets.mjs",
     "supabase:preflight": "node scripts/check-supabase-live.mjs",
-    "test": "tsx --test tests/unit/chat-validator.test.ts tests/unit/chat-providers.test.ts tests/unit/chat-preferences.test.ts tests/unit/chat-remote-history.test.ts tests/unit/modes.test.ts tests/unit/profile.test.ts tests/unit/prompts.test.ts tests/unit/request-security.test.ts tests/unit/supabase-config.test.ts",
+    "test": "tsx --test tests/unit/chat-validator.test.ts tests/unit/chat-providers.test.ts tests/unit/chat-preferences.test.ts tests/unit/chat-remote-history.test.ts tests/unit/documents.test.ts tests/unit/modes.test.ts tests/unit/profile.test.ts tests/unit/prompts.test.ts tests/unit/request-security.test.ts tests/unit/supabase-config.test.ts",
     "typecheck": "tsc --noEmit --project tsconfig.typecheck.json && tsc --noEmit --project tsconfig.functions.json"
   },
   "dependencies": {

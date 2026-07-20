@@ -13,6 +13,12 @@ export default function ChatPage() {
         </Link>
         <nav className="flex items-center gap-2">
           <Link
+            href="/documents"
+            className="rounded-xl border border-white/40 bg-white/55 px-3 py-2 text-xs font-medium text-foreground/70 shadow-sm backdrop-blur-md transition hover:bg-white/70 dark:border-white/10 dark:bg-black/25 dark:hover:bg-black/35"
+          >
+            Documents
+          </Link>
+          <Link
             href="/settings"
             className="rounded-xl border border-white/40 bg-white/55 px-3 py-2 text-xs font-medium text-foreground/70 shadow-sm backdrop-blur-md transition hover:bg-white/70 dark:border-white/10 dark:bg-black/25 dark:hover:bg-black/35"
           >

@@ -166,9 +166,9 @@ Goal: let users ask questions from uploaded documents.
 
 Upload pipeline:
 
-- [ ] Add document upload UI
-- [ ] Validate file type
-- [ ] Validate file size
+- [x] Add document upload UI
+- [x] Validate file type
+- [x] Validate file size
 - [ ] Upload file to Supabase Storage
 - [ ] Store document metadata in PostgreSQL
 
